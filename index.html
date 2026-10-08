@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light">
-<title>Agenda de bodas</title>
+<title>Agenda de bodas · Fotomatón Pamplona</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#F5EEE1">
 <link rel="icon" type="image/png" href="icon-192.png">
@@ -47,6 +47,9 @@ button,input,select,textarea{font:inherit;color:inherit}
 .steps{margin:0;padding:6px 22px 4px 42px}
 .steps li{margin-bottom:8px}
 .steps b{white-space:nowrap}
+.hdr-actions{display:flex;flex-wrap:wrap;gap:8px}
+.paste-box{padding:0 22px}
+.paste-box textarea{width:100%;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 12px;resize:vertical;font-size:.92rem}
 .fest-help{margin:0 22px 8px;color:var(--muted);font-size:.86rem}
 .fest-list{list-style:none;margin:0 22px;padding:0;border-top:1px solid var(--line)}
 .fest-list li{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:.9rem}
@@ -58,6 +61,8 @@ button,input,select,textarea{font:inherit;color:inherit}
 .note{margin:4px 22px 0;padding:10px 12px;border-radius:10px;background:var(--res);border:1px solid var(--res-b);font-size:.86rem}
 
 header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:22px}
+.brand{margin-bottom:8px}
+.brand-logo{display:block;height:56px;width:auto}
 h1{font-family:var(--serif);font-weight:600;font-size:clamp(2.2rem,6vw,3.3rem);line-height:1;margin:0}
 .sub{color:var(--muted);margin:6px 0 0}
 .btn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:9px 16px;cursor:pointer;font-weight:600;font-size:.9rem}
@@ -141,7 +146,9 @@ td a:hover{text-decoration:underline}
 .vbtn{border:0;background:none;border-radius:999px;padding:6px 13px;font-weight:700;font-size:.82rem;cursor:pointer;color:var(--muted)}
 .vbtn[aria-pressed="true"]{background:var(--ink);color:#fff}
 
-/* Vista compacta: como una hoja de Excel */
+/* Vista compacta: como una hoja de Excel (sin resumen ni filtros, que solo salen en la detallada) */
+body.compacta #stats,body.compacta #chips{display:none}
+body.compacta .toolbar{margin-bottom:0}
 body.compacta .mes{margin-top:14px}
 body.compacta .mes h2{font-size:.95rem;margin-bottom:4px;padding-bottom:3px}
 body.compacta table{border-collapse:collapse;border-spacing:0;min-width:980px;width:100%;table-layout:fixed;background:var(--surface)}
@@ -263,10 +270,14 @@ form.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;padding:10px 
   </button>
   <header class="top">
     <div>
+      <div class="brand"><img class="brand-logo" src="fotomaton-pamplona.png" alt="Fotomatón Pamplona" width="118" height="48"></div>
       <h1>Agenda de bodas</h1>
       <p class="sub" id="subline">Tus fechas, cobros y contactos en un solo sitio.</p>
     </div>
-    <button class="btn primary" id="btnNew">+ Nueva boda</button>
+    <div class="hdr-actions">
+      <button class="btn" id="btnPaste">Pegar solicitud</button>
+      <button class="btn primary" id="btnNew">+ Nueva boda</button>
+    </div>
   </header>
 
   <nav class="archivador" id="tabs" role="tablist" aria-label="Años"></nav>
@@ -336,6 +347,19 @@ form.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;padding:10px 
   </div>
 </dialog>
 
+<dialog id="dlgPaste">
+  <div class="dlg-head">
+    <h2>Pegar solicitud</h2>
+    <button class="x" id="pasteClose" aria-label="Cerrar">×</button>
+  </div>
+  <p class="fest-help">Pega aquí el texto de la solicitud de presupuesto. Se leen nombre, fecha, lugar, email y teléfono; el resto va a observaciones.</p>
+  <div class="paste-box"><textarea id="pasteTxt" rows="8" placeholder="Nombre: Esperanza&#10;Email: correo@ejemplo.com&#10;Fecha: 2026-11-14&#10;Lugar: Pamplona"></textarea></div>
+  <div class="dlg-foot">
+    <button class="btn" id="pasteClip" type="button">Pegar del portapapeles</button>
+    <div class="r"><button class="btn" id="pasteCancel" type="button">Cancelar</button><button class="btn primary" id="pasteGo" type="button">Sacar datos</button></div>
+  </div>
+</dialog>
+
 <dialog id="dlgFest">
   <div class="dlg-head">
     <h2>Festivos locales</h2>
@@ -370,7 +394,8 @@ form.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;padding:10px 
   const standalone=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
   if(standalone){ btn.hidden=true; }
   if('serviceWorker' in navigator && location.protocol.startsWith('http')){
-    navigator.serviceWorker.register('sw.js').catch(()=>{});
+    // updateViaCache:'none' → el navegador comprueba siempre si hay un sw.js nuevo
+    navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).catch(()=>{});
   }
   let deferred=null;
   window.addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); deferred=e; });
@@ -446,6 +471,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   const isBoda=b=>b.estado!=='cancelada'&&b.estado!=='personal';
   // Reservada (amarillo) = han pagado la señal de 100 €
   const SENAL=100;
+  const DEF_HORAS=3, DEF_PRECIO=550; // valores al añadir una boda nueva
   const senal=total=>total>0?Math.min(SENAL,total):SENAL;
   const ocupa=b=>b.estado!=='cancelada';
   const MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
@@ -723,8 +749,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     $('fFecha').value=b?.fecha||fecha||'';
     if(!b&&year){ $('fFecha').min=`${year}-01-01`; $('fFecha').max=`${year}-12-31`; } else { $('fFecha').min=''; $('fFecha').max=''; }
     $('fNovios').value=b?.novios||'';
-    $('fHoras').value=b&&b.horas!==''?b.horas:'';
-    $('fTotal').value=b&&b.total?b.total:'';
+    // boda nueva: valores por defecto (3 h y 550 €); al editar, los guardados
+    $('fHoras').value=b?(b.horas!==''?b.horas:''):DEF_HORAS;
+    $('fTotal').value=b?(b.total?b.total:''):DEF_PRECIO;
     $('fPagado').value=b&&b.pagado?b.pagado:'';
     $('fUbic').value=b?.ubicacion||'';
     $('fCont').value=b?.contacto||'';
@@ -1093,6 +1120,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   const KEY_V='agenda-bodas-vista';
   function setVista(v){
     document.body.classList.toggle('compacta',v==='compacta');
+    // los filtros no se ven en la vista compacta: se quitan para que no oculten filas sin avisar
+    if(v==='compacta'&&statusFilter.size){ statusFilter.clear(); if(selYear) renderChips(); }
     $('vista').querySelectorAll('.vbtn').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===v)));
     try{ localStorage.setItem(KEY_V,v); }catch(e){}
   }
@@ -1103,6 +1132,69 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   $('fileImp').onchange=e=>{ const f=e.target.files[0]; if(f) importFile(f); e.target.value=''; };
   $('btnExport').onclick=exportXlsx;
   $('btnBackup').onclick=backup;
+  // ---------- pegar solicitud de presupuesto ----------
+  // Lee líneas "Campo: valor" (Nombre, Fecha, Lugar, Email, Teléfono…); lo que no reconoce va a observaciones
+  const SOL_KEYS=[
+    ['fecha',/^(fecha|dia|date)/],
+    ['email',/^(e-?mail|correo|mail)/],
+    ['tel',/^(telefono|tel|tlf|telf|movil|phone|whatsapp|contacto)/],
+    ['ubicacion',/^(lugar|ubicacion|localidad|ciudad|sitio|finca|direccion|donde|municipio)/],
+    ['horas',/^(horas|duracion)/],
+    ['novios',/^(nombre|novios|name|cliente|pareja)/],
+  ];
+  function solicitudFecha(v){
+    const pd=pickDate({v,w:v});
+    if(pd.fecha) return pd.fecha;
+    if(!pd.yearless) return '';
+    // sin año: la próxima vez que llegue esa fecha
+    const y=new Date().getFullYear(), f=ymd(y,pd.mo,pd.d);
+    return f&&f<todayStr()?ymd(y+1,pd.mo,pd.d):f;
+  }
+  function parseSolicitud(text){
+    const out={novios:'',fecha:'',ubicacion:'',horas:'',contacto:[],notas:[],found:0};
+    text.split(/\r?\n/).forEach(line=>{
+      const m=line.match(/^\s*([^:]{1,40}?)\s*:\s*(.*)$/);
+      if(!m){ if(line.trim()) out.notas.push(line.trim()); return; }
+      const label=m[1].trim(), v=m[2].trim(); if(!v) return;
+      const f=SOL_KEYS.find(([,re])=>re.test(norm(label)));
+      if(!f){ out.notas.push(`${label}: ${v}`); return; }
+      out.found++;
+      if(f[0]==='fecha'){ out.fecha=solicitudFecha(v); if(!out.fecha) out.notas.push(`${label}: ${v}`); }
+      else if(f[0]==='email'||f[0]==='tel') out.contacto.push(v);
+      else if(f[0]==='horas') out.horas=toHours({v,w:v});
+      else if(f[0]==='novios') out.novios=out.novios||v;
+      else out.ubicacion=v;
+    });
+    // sin etiquetas: busca un email y un teléfono en cualquier parte del texto
+    if(!out.contacto.length){
+      const e=text.match(/[\w.+-]+@[\w-]+\.[\w.-]+/), t=text.match(/(?:\+?\d[\d .-]{7,}\d)/);
+      if(e) out.contacto.push(e[0]); if(t) out.contacto.push(t[0].trim());
+      if(e||t) out.found++;
+    }
+    // nombre con mayúscula inicial ("esperanza" → "Esperanza")
+    out.novios=out.novios.split(' ').map((w,i)=>i&&/^(y|e|de|del|la|las|los)$/i.test(w)?w.toLowerCase():w.replace(/(^|-)(\p{L})/gu,(x,a,b)=>a+b.toUpperCase())).join(' ');
+    out.ubicacion=out.ubicacion.replace(/^\p{L}/u,c=>c.toUpperCase());
+    return out;
+  }
+  $('btnPaste').onclick=()=>{ $('pasteTxt').value=''; $('dlgPaste').showModal(); $('pasteTxt').focus(); };
+  $('pasteClose').onclick=$('pasteCancel').onclick=()=>$('dlgPaste').close();
+  $('pasteClip').onclick=async()=>{
+    try{ $('pasteTxt').value=await navigator.clipboard.readText(); }
+    catch(e){ toast('No se pudo leer el portapapeles: mantén pulsado el recuadro y elige Pegar'); $('pasteTxt').focus(); }
+  };
+  $('pasteGo').onclick=()=>{
+    const s=parseSolicitud($('pasteTxt').value);
+    if(!s.found){ toast('No he encontrado datos. Revisa que el texto tenga líneas como "Nombre: …" o "Fecha: …"'); return; }
+    $('dlgPaste').close();
+    openForm(null,null,s.fecha);
+    $('fNovios').value=s.novios; $('fUbic').value=s.ubicacion;
+    $('fCont').value=s.contacto.join(' / '); $('fNotas').value=s.notas.join('\n');
+    if(s.horas!=='') $('fHoras').value=s.horas;
+    updateCalc();
+    (s.fecha?$('fNovios'):$('fFecha')).focus();
+    toast(s.fecha?'Datos cargados: revisa y pulsa Guardar':'Datos cargados. No encontré la fecha: escríbela tú');
+  };
+
   // festivos locales
   function renderFestLocal(){
     const fmt=d=>{ const [m,dd]=d.slice(-5).split('-'); return `${+dd} de ${MESES[+m-1]}${d.length===5?'':' de '+d.slice(0,4)}`; };
