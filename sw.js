@@ -1,6 +1,6 @@
 // Service worker: permite instalar la app y abrirla sin conexión.
 // Siempre intenta la red primero (para recibir cambios) y, si falla, usa la copia guardada.
-const CACHE = 'agenda-bodas-v4';
+const CACHE = 'agenda-bodas-v5';
 const SHELL = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './apple-touch-icon.png', './fotomaton-pamplona.png'];
 
 self.addEventListener('install', e => {
