@@ -802,7 +802,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const ubicacion=join('ubicacion',' · '), contacto=join('contacto',' / ');
       const total=toMoney(cells('total')[0]);
       if(festivo){
-        if(!festExcel[fecha]||festExcel[fecha]==='Festivo') festExcel[fecha]=(!total&&!contacto&&(novios||join('notas',' ')))||'Festivo';
+        if(!res.fests[fecha]||res.fests[fecha]==='Festivo') res.fests[fecha]=(!total&&!contacto&&(novios||join('notas',' ')))||'Festivo';
         res.fest++;
         if(!total&&!contacto) continue; // fila color carne sin datos de boda: solo marca el festivo
       }
@@ -813,22 +813,25 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       if(!est) est=fills.find(f=>f&&f!=='festivo')||'';
       if(!est) est=autoEstado(total,pagado);
       if(est==='pagado'&&!pagado) pagado=total;
-      const same=x=>x.novios.toLowerCase()===novios.toLowerCase();
-      let prev=bodas.find(x=>x.fecha===fecha&&same(x));
-      if(!prev){
-        // importada antes con la fecha mal: se mueve a la fecha correcta
-        const old=bodas.find(x=>same(x)&&pd.olds.includes(x.fecha));
-        if(old){ old.fecha=fecha; if(est==='personal') old.estado='personal'; res.moved++; res.years.add(fecha.slice(0,4)); continue; }
-      }
-      if(prev){
-        // ya existía: si en el Excel está en azul, pasa a evento personal
-        if(est==='personal'&&prev.estado!=='personal'){ prev.estado='personal'; res.personal++; res.years.add(fecha.slice(0,4)); }
-        else res.dup++;
-        continue;
-      }
-      bodas.push({id:uid(),fecha,novios,horas:toHours(cells('horas')[0]),total,pagado,estado:est,ubicacion,contacto,notas});
-      res.added++; if(est==='personal') res.personal++; res.years.add(fecha.slice(0,4));
+      const item={id:uid(),fecha,novios,horas:toHours(cells('horas')[0]),total,pagado,estado:est,ubicacion,contacto,notas};
+      // el mismo evento repetido dentro del Excel: vale la última fila
+      const k=res.items.findIndex(x=>x.b.fecha===fecha&&x.b.novios.toLowerCase()===novios.toLowerCase());
+      if(k>=0) res.items[k]={b:item,olds:pd.olds||[]}; else res.items.push({b:item,olds:pd.olds||[]});
     }
+  }
+  // Las fechas que trae el Excel sustituyen a lo guardado esos días.
+  // También se quitan las importadas antes con la fecha mal (Excel de Mac o año equivocado).
+  function applyImport(res){
+    const fechas=new Set(res.items.map(x=>x.b.fecha));
+    const wrongDate=b=>res.items.some(x=>x.olds.includes(b.fecha)&&x.b.novios.toLowerCase()===b.novios.toLowerCase());
+    const replaced=bodas.filter(b=>fechas.has(b.fecha)), moved=bodas.filter(b=>!fechas.has(b.fecha)&&wrongDate(b));
+    const nDias=new Set(replaced.map(b=>b.fecha)).size;
+    if(nDias&&!confirm(`${nDias} ${nDias===1?'fecha del Excel ya tenía':'fechas del Excel ya tenían'} datos guardados en la app. Se sustituirán por lo que pone el Excel. ¿Continuar?`)) return false;
+    bodas=bodas.filter(b=>!fechas.has(b.fecha)&&!wrongDate(b));
+    res.items.forEach(({b})=>{ bodas.push(b); res.years.add(b.fecha.slice(0,4)); if(b.estado==='personal') res.personal++; });
+    Object.entries(res.fests).forEach(([f,n])=>{ if(n!=='Festivo'||!festExcel[f]) festExcel[f]=n; });
+    res.added=res.items.length; res.replaced=nDias; res.moved=moved.length;
+    return true;
   }
   function parseCsv(text){
     text=text.replace(/^\uFEFF/,'');
@@ -847,7 +850,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     return rows.map(r=>r.map(v=>v===''?null:{v,w:v}));
   }
   function importFile(file){
-    const res={added:0,skipped:0,dup:0,personal:0,moved:0,fest:0,years:new Set(),sheets:0,cols:new Set(),extra:new Set(),lastHeader:null,positional:false};
+    const res={added:0,skipped:0,replaced:0,personal:0,moved:0,fest:0,items:[],fests:{},years:new Set(),sheets:0,cols:new Set(),extra:new Set(),lastHeader:null,positional:false};
     date1904=false;
     const isCsv=/\.csv$/i.test(file.name);
     const rd=new FileReader();
@@ -870,17 +873,18 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             processRows(rows,y,res); res.sheets++;
           });
         }
+        if(!applyImport(res)){ toast('Importación cancelada: no se ha cambiado nada'); return; }
         save();
         const ys=[...res.years].sort();
         if(ys.length) selYear=ys.includes(selYear)?selYear:(ys.find(y=>y>=String(new Date().getFullYear()))||ys[ys.length-1]);
         renderAll();
-        let msg=`${res.added} bodas importadas`;
+        let msg=`${res.added} ${res.added===1?'evento importado':'eventos importados'}`;
         if(!isCsv) msg+=` de ${res.sheets} ${res.sheets===1?'hoja':'hojas'}`;
         if(ys.length) msg+=` (${ys.join(', ')})`;
         if(res.personal) msg+=`, ${res.personal} como eventos personales (azul)`;
         if(res.fest) msg+=`, ${res.fest} ${res.fest===1?'festivo':'festivos'} (color carne)`;
         if(res.moved) msg+=`. ${res.moved} ${res.moved===1?'ya importada movida':'ya importadas movidas'} a su fecha correcta`;
-        if(res.dup) msg+=`. ${res.dup} ya estaban`;
+        if(res.replaced) msg+=`. ${res.replaced} ${res.replaced===1?'fecha sobrescrita':'fechas sobrescritas'} con los datos del Excel`;
         if(res.skipped) msg+=`. ${res.skipped} ${res.skipped===1?'fila':'filas'} sin fecha reconocible`;
         msg+=res.positional?'. No encontré títulos de columna: leídas por posición':`. Columnas leídas: ${[...res.cols].join(', ')}`;
         if(res.extra.size) msg+=` (y a observaciones: ${[...res.extra].join(', ')})`;
