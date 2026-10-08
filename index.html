@@ -191,8 +191,8 @@ td a:hover{text-decoration:underline}
 .srow{display:grid;grid-template-columns:44px minmax(0,1fr);gap:6px;align-items:center;margin-bottom:6px}
 .srow .m{font-size:.74rem;font-weight:800;text-transform:uppercase;color:var(--muted)}
 .tags{display:flex;gap:5px;overflow-x:auto;scrollbar-width:thin;padding-bottom:3px;-webkit-overflow-scrolling:touch}
-.tg{position:relative;flex:0 0 calc((100% - 20px)/5);min-width:118px;border:1px solid var(--lib-b);background:var(--lib);border-radius:8px;padding:5px 8px;min-height:44px;cursor:pointer;text-align:left;overflow:hidden}
-.tg b{display:block;font-size:.82rem;text-transform:lowercase}
+.tg{position:relative;flex:0 0 calc((100% - 35px)/8);min-width:78px;border:1px solid var(--lib-b);background:var(--lib);border-radius:8px;padding:4px 7px;min-height:40px;cursor:pointer;text-align:left;overflow:hidden}
+.tg b{display:block;font-size:.78rem;text-transform:lowercase;white-space:nowrap}
 .tg .tl{display:block;width:100%;border:0;background:none!important;padding:0;margin:0;text-align:left;cursor:pointer;font-size:.72rem;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tg .tl.libre{color:var(--muted);font-weight:500}
 .tg .tl.ev-cancelada{text-decoration:line-through}
@@ -241,9 +241,12 @@ td a:hover{text-decoration:underline}
   .card{padding:14px;border-radius:14px}
   .srow{grid-template-columns:30px minmax(0,1fr);gap:4px}
   .srow .m{font-size:.62rem}
-  .tg{flex-basis:96px;min-width:96px;min-height:40px;padding:4px 6px;border-radius:7px}
-  .tg b{font-size:.74rem}
-  .tg .tl{font-size:.66rem}
+  .tags{gap:3px}
+  .tg{flex-basis:calc((100% - 12px)/5);min-width:44px;min-height:38px;padding:4px 4px;border-radius:7px}
+  .tg .fx{right:3px;bottom:2px}
+  .tg b{font-size:.7rem;letter-spacing:-.02em}
+  .tg .tl{font-size:.6rem;letter-spacing:-.02em}
+  .tg.multi .tl{padding-left:3px;border-left-width:2px}
   .crow{grid-template-columns:62px 1fr auto}
   .crow .a{grid-column:1/-1;justify-content:flex-end}
 }
@@ -1526,7 +1529,7 @@ Un saludo!!`
         const cls=act.length?'s-'+act[0].estado:(libre?'libre':'s-cancelada');
         const title=[cap(corto(f)),...lineas.map(b=>b?`${b.novios} (${ESTADOS[b.estado]})`:'Libre'),h?'Festivo: '+festText(h):''].filter(Boolean).join(' · ');
         return `<div class="tg ${cls}${lineas.length>1?' multi':''}${f<hoy?' past':''}${f===prox&&libre?' today':''}" data-f="${f}" title="${esc(title)}"><b>${wd(f)} ${+f.slice(8)}</b>${lineas.map(b=>b
-          ?`<button type="button" class="tl ev-${b.estado}" data-id="${b.id}">${esc(b.novios)}</button>`
+          ?`<button type="button" class="tl ev-${b.estado}" data-id="${b.id}">${b.estado==='personal'?'Personal':b.estado==='cancelada'?'Cancelado':'Evento'}</button>`
           :`<button type="button" class="tl libre" data-f="${f}">Libre</button>`).join('')}${h?'<em class="fx">F</em>':''}</div>`;
       }).join('');
       html+=`<div class="srow"><span class="m">${MESES[m].slice(0,3)}</span><div class="tags">${tags}</div></div>`;
