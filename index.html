@@ -21,11 +21,11 @@
   --bg:#F5EEE1; --paper:#FBF7EF; --surface:#FFFFFF; --ink:#141414; --muted:#6B6358; --line:#E2D8C6;
   --accent:#3F5E52; --accent-ink:#FFFFFF;
   --sin:#FFFFFF; --sin-b:#BDB3A3;
+  --lib:#FDFBF7; --lib-b:#E9E1D3;
   --res:#F7E6B5; --res-b:#C98A12;
   --pag:#D6EDDC; --pag-b:#2E8A57;
   --can:#F6D3D0; --can-b:#C2413B;
   --per:#D9E6F7; --per-b:#2F6DB5;
-  --fes:#FCE4D6; --fes-b:#E0A07A; --fes-ink:#94532A;
   --serif:"Cormorant Garamond", Georgia, "Times New Roman", serif;
   --sans:"Manrope", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   box-sizing:border-box;
@@ -81,7 +81,6 @@ h1{font-family:var(--serif);font-weight:600;font-size:clamp(2.2rem,6vw,3.3rem);l
 .sw-sin{background:var(--sin);border-color:var(--sin-b)} .sw-reserva{background:var(--res);border-color:var(--res-b)}
 .sw-pagado{background:var(--pag);border-color:var(--pag-b)} .sw-cancelada{background:var(--can);border-color:var(--can-b)}
 .sw-personal{background:var(--per);border-color:var(--per-b)}
-.sw-fest{background:var(--fes);border-color:var(--fes-b)}
 .chip.legend{cursor:default;border-style:dashed;color:var(--muted)}
 
 /* Meses */
@@ -96,20 +95,18 @@ td{padding:10px;vertical-align:top;font-size:.9rem;border-top:1px solid;border-b
 td:first-child{border-left:5px solid;border-radius:8px 0 0 8px}
 td:last-child{border-right:1px solid;border-radius:0 8px 8px 0}
 tr.fila{cursor:pointer}
-tr.libre td{background:transparent;border-top:1px dashed var(--sin-b);border-bottom:1px dashed var(--sin-b);padding-top:6px;padding-bottom:6px}
-tr.libre td:first-child{border-left:5px solid var(--line)}
-tr.libre td:last-child{border-right:1px dashed var(--sin-b)}
+tr.libre td{background:var(--lib);border-top:1px solid var(--lib-b);border-bottom:1px solid var(--lib-b);padding-top:6px;padding-bottom:6px}
+tr.libre td:first-child{border-left:5px solid var(--lib-b)}
+tr.libre td:last-child{border-right:1px solid var(--lib-b)}
 tr.libre .dia b{font-size:1.25rem}
 tr.libre .libre-txt{color:var(--muted);font-weight:700}
 tr.libre .add-hint{margin-left:14px;color:var(--accent);font-weight:600;font-size:.85rem;opacity:0}
 tr.libre:hover .add-hint,tr.libre:focus-visible .add-hint{opacity:1}
 tr.libre.pasado{cursor:default}
-tr.libre.fest td{background:var(--fes);border-color:var(--fes-b)}
-tr.libre.fest td:first-child{border-left-color:var(--fes-b)}
-.fest-txt{margin-left:12px;color:var(--fes-ink);font-weight:600;font-size:.84rem}
-.fest-tag{display:inline-block;margin-top:3px;padding:1px 9px;border-radius:999px;background:var(--fes);border:1px solid var(--fes-b);color:var(--fes-ink);font-size:.74rem;font-weight:700}
+.fest-txt{margin-left:12px;color:var(--muted);font-style:italic;font-size:.84rem}
+.fest-tag{display:block;margin-top:2px;color:var(--muted);font-style:italic;font-weight:400;font-size:.8rem}
 tr.pasado{opacity:.6}
-.sw-libre{background:transparent;border-color:var(--muted);border-style:dashed}
+.sw-libre{background:var(--lib);border-color:var(--lib-b)}
 tr.fila:hover td{filter:brightness(.97)}
 tr.fila:focus-visible{outline:none}
 tr.fila:focus-visible td{box-shadow:inset 0 0 0 2px var(--accent)}
@@ -176,12 +173,11 @@ form.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;padding:10px 
   tr.r-personal{background:var(--per);border-color:var(--per-b)}
   td,td:first-child,td:last-child{border:none;border-radius:0;padding:0;background:transparent!important;max-width:none}
   td.dia{grid-row:1/3}
-  tr.libre{background:transparent;border-color:var(--line);border-style:dashed;padding:8px 12px}
+  tr.libre{background:var(--lib);border-color:var(--lib-b);padding:8px 12px}
   tr.libre td.dia{grid-row:auto}
   tr.libre td{border:none!important;padding:0}
   tr.libre .dia b{font-size:1.15rem}
   tr.libre .add-hint{opacity:1}
-  tr.libre.fest{background:var(--fes);border-color:var(--fes-b);border-style:solid}
   .fest-txt{display:block;margin-left:0}
   td.c-nov{grid-column:2}
   td.c-est{grid-column:3;grid-row:1;text-align:right}
@@ -232,7 +228,7 @@ form.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;padding:10px 
     </select>
     <input type="file" id="fileImp" accept=".xlsx,.xls,.xlsm,.ods,.csv" hidden>
     <input type="file" id="fileJson" accept=".json,application/json" hidden>
-    <p class="hint">Al importar se leen solo las columnas con título (Fecha, Novios, Horas, Importe, Cobrado, Ubicación, Contacto, Observaciones, Estado); las demás columnas con título van a observaciones. Las filas en azul se importan como eventos personales y las de color carne, como festivos. Los festivos de Navarra se descargan solos. Los datos se guardan en este navegador: haz una copia de seguridad de vez en cuando.</p>
+    <p class="hint">Al importar se leen solo las columnas con título (Fecha, Novios, Horas, Importe, Cobrado, Ubicación, Contacto, Observaciones, Estado); las demás columnas con título van a observaciones. Colores del Excel: amarillo = reservada (100 € de señal), verde = pagada, rojo = cancelada, azul = evento personal; las filas color carne se leen como festivos. Los festivos de Navarra se descargan solos y se indican junto al sábado más cercano. Los datos se guardan en este navegador: haz una copia de seguridad de vez en cuando.</p>
   </footer>
 </div>
 
@@ -363,6 +359,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   const ESTADOS={sin:'Sin pagar',reserva:'Reservada',pagado:'Pagada',cancelada:'Cancelada',personal:'Personal'};
   // boda que cuenta (ni cancelada ni evento personal) / día ocupado (todo menos cancelada)
   const isBoda=b=>b.estado!=='cancelada'&&b.estado!=='personal';
+  // Reservada (amarillo) = han pagado la señal de 100 €
+  const SENAL=100;
+  const senal=total=>total>0?Math.min(SENAL,total):SENAL;
   const ocupa=b=>b.estado!=='cancelada';
   const MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   let bodas=[], extraYears=[], selYear=null, editId=null, statusFilter=new Set(), currency='EUR';
@@ -383,6 +382,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       if(n.contacto===undefined) n.contacto=[n.telefono,n.email].filter(Boolean).join(' / ');
       delete n.inicio; delete n.fin; delete n.telefono; delete n.email;
       if(!ESTADOS[n.estado]) n.estado='sin';
+      if(n.estado==='reserva'&&!num(n.pagado)) n.pagado=senal(num(n.total));
       return n;
     });
   }
@@ -507,8 +507,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     const c={}; bodas.filter(b=>b.fecha.startsWith(selYear)).forEach(b=>c[b.estado]=(c[b.estado]||0)+1);
     $('chips').innerHTML=Object.entries(ESTADOS).map(([k,v])=>
       `<button class="chip" data-st="${k}" aria-pressed="${statusFilter.has(k)}"><span class="sw sw-${k}"></span>${v} (${c[k]||0})</button>`).join('')
-      +`<button class="chip" data-st="libre" aria-pressed="${statusFilter.has('libre')}"><span class="sw sw-libre"></span>Sábados libres (${freeSaturdays(selYear).length})</button>`
-      +`<span class="chip legend"><span class="sw sw-fest"></span>Finde con festivo</span>`;
+      +`<button class="chip" data-st="libre" aria-pressed="${statusFilter.has('libre')}"><span class="sw sw-libre"></span>Sábados libres (${freeSaturdays(selYear).length})</button>`;
   }
   function saturdays(year,m){
     const out=[], d=new Date(+year,m,1);
@@ -565,7 +564,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         const past=r.fecha<hoy;
         if(r.libre){
           const fh=hol[r.fecha];
-          html+=`<tr class="fila libre${past?' pasado':''}${fh?' fest':''}" data-fecha="${r.fecha}" tabindex="0" title="${past?'Sábado pasado sin boda':'Apuntar una boda este sábado'}">
+          html+=`<tr class="fila libre${past?' pasado':''}" data-fecha="${r.fecha}" tabindex="0" title="${past?'Sábado pasado sin boda':'Apuntar una boda este sábado'}">
             <td class="dia"><b>${d.getDate()}</b>${wd}</td>
             <td class="c-nov" colspan="7"><span class="libre-txt">Libre</span>${fh?`<span class="fest-txt">Festivo: ${esc(festText(fh))}</span>`:''}${past?'':'<span class="add-hint">+ Apuntar boda</span>'}</td>
             <td class="c-est"></td></tr>`;
@@ -736,6 +735,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     if(r>180&&g<140&&b<140) return 'cancelada';
     if(g>r+20&&g>b+10) return 'pagado';
     if(r>180&&g>130&&b<150) return 'reserva';
+    if(r>200&&g>200&&Math.abs(r-g)<40&&b<r-30) return 'reserva'; // amarillos claros (p. ej. FFF2CC)
     return '';
   }
   // Títulos de columna reconocidos (en minúsculas y sin acentos). El orden importa: "Importe pendiente" es pendiente, no importe.
@@ -769,8 +769,25 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     return null;
   }
   // Solo se leen las columnas con título. Sin títulos: fecha, novios, horas, importe, ubicación, contacto, observaciones, cobrado, estado.
-  function processRows(rows,sheetYear,res){
+  // Año de una celda: número (2027), texto ("Temporada 2027") o fecha
+  function cellYear(c){
+    if(c==null) return 0;
+    if(typeof c.v==='number'){
+      if(Number.isInteger(c.v)&&c.v>=1990&&c.v<=2100) return c.v;
+      if(c.v>20000&&c.v<80000){ const p=XLSX.SSF.parse_date_code(c.v,{date1904}); return p&&p.y||0; }
+    }
+    const m=txt(c).match(/\b(19|20)\d{2}\b/); return m?+m[0]:0;
+  }
+  // Si no está en B2 ni A1: cualquier celda por encima de la fila de títulos
+  function yearFromTop(rows,headerRow){
+    for(const r of rows.slice(0,Math.max(headerRow,1))) for(const c of r){ const y=cellYear(c); if(y) return y; }
+    return 0;
+  }
+  function processRows(rows,nameYear,res,sheetName,cellHint){
     const h=findHeader(rows); let map, start=0;
+    const topYear=cellHint||yearFromTop(rows,h?h.row:3);
+    const sheetYear=topYear?String(topYear):nameYear;
+    if(sheetYear) res.sheetYears.push(`${sheetName||'hoja'}: ${sheetYear}`);
     if(h){ map=h.cols; start=h.row+1; res.lastHeader=map; }
     else if(res.lastHeader) map=res.lastHeader; // misma estructura que la hoja anterior
     else { map={}; POS_COLS.forEach((k,j)=>map[j]={key:k,title:COL_LBL[k]}); res.positional=true; }
@@ -785,12 +802,16 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const dc=r[fechaCol];
       if(colKey(txt(dc))==='fecha') continue; // títulos repetidos (p. ej. uno por mes)
       let pd=pickDate(dc);
-      if(pd.yearless){
-        // sin año: el de la fila anterior (si se pasa de diciembre a enero, el siguiente) o el del nombre de la hoja
+      if(pd.yearless||(pd.fecha&&sheetYear)){
+        // Manda el año de la hoja (Excel pone el año en curso a las fechas escritas sin año).
+        // Si las filas pasan de diciembre a enero, es el año siguiente. Sin año en la hoja: el de la fila anterior.
+        const mo=pd.yearless?pd.mo:+pd.fecha.slice(5,7), d=pd.yearless?pd.d:+pd.fecha.slice(8,10), orig=pd.fecha||'';
         let y=runY||+sheetYear;
-        if(runY&&lastM-pd.mo>=6) y=runY+1;
-        const olds=sheetYear&&+sheetYear!==y?[ymd(sheetYear,pd.mo,pd.d)].filter(Boolean):[];
-        pd=y?{fecha:ymd(y,pd.mo,pd.d),olds}:{fecha:''};
+        if(runY&&lastM-mo>=6) y=runY+1;
+        const f=y?ymd(y,mo,d):'';
+        // olds: fechas con las que pudo guardarse antes, para quitarlas al reimportar
+        const olds=[...(pd.olds||[]),orig,sheetYear&&+sheetYear!==y?ymd(sheetYear,mo,d):''].filter(x=>x&&x!==f);
+        pd={fecha:f||orig,olds};
       }
       const fecha=pd.fecha;
       if(!fecha){ if(used.some(j=>txt(r[j]))) res.skipped++; continue; }
@@ -813,6 +834,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       if(!est) est=fills.find(f=>f&&f!=='festivo')||'';
       if(!est) est=autoEstado(total,pagado);
       if(est==='pagado'&&!pagado) pagado=total;
+      if(est==='reserva'&&!pagado) pagado=senal(total);
       const item={id:uid(),fecha,novios,horas:toHours(cells('horas')[0]),total,pagado,estado:est,ubicacion,contacto,notas};
       // el mismo evento repetido dentro del Excel: vale la última fila
       const k=res.items.findIndex(x=>x.b.fecha===fecha&&x.b.novios.toLowerCase()===novios.toLowerCase());
@@ -850,7 +872,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     return rows.map(r=>r.map(v=>v===''?null:{v,w:v}));
   }
   function importFile(file){
-    const res={added:0,skipped:0,replaced:0,personal:0,moved:0,fest:0,items:[],fests:{},years:new Set(),sheets:0,cols:new Set(),extra:new Set(),lastHeader:null,positional:false};
+    const res={added:0,skipped:0,replaced:0,personal:0,moved:0,fest:0,items:[],fests:{},sheetYears:[],years:new Set(),sheets:0,cols:new Set(),extra:new Set(),lastHeader:null,positional:false};
     date1904=false;
     const isCsv=/\.csv$/i.test(file.name);
     const rd=new FileReader();
@@ -870,7 +892,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
               rows.push(row);
             }
             const y=(name.match(/(19|20)\d{2}/)||[])[0]||'';
-            processRows(rows,y,res); res.sheets++;
+            // el año de la hoja está en B2 (o en A1)
+            processRows(rows,y,res,name,cellYear(ws.B2)||cellYear(ws.A1)); res.sheets++;
           });
         }
         if(!applyImport(res)){ toast('Importación cancelada: no se ha cambiado nada'); return; }
@@ -879,7 +902,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         if(ys.length) selYear=ys.includes(selYear)?selYear:(ys.find(y=>y>=String(new Date().getFullYear()))||ys[ys.length-1]);
         renderAll();
         let msg=`${res.added} ${res.added===1?'evento importado':'eventos importados'}`;
-        if(!isCsv) msg+=` de ${res.sheets} ${res.sheets===1?'hoja':'hojas'}`;
+        if(!isCsv) msg+=` de ${res.sheets} ${res.sheets===1?'hoja':'hojas'}${res.sheetYears.length?` [${res.sheetYears.join(', ')}]`:''}`;
         if(ys.length) msg+=` (${ys.join(', ')})`;
         if(res.personal) msg+=`, ${res.personal} como eventos personales (azul)`;
         if(res.fest) msg+=`, ${res.fest} ${res.fest===1?'festivo':'festivos'} (color carne)`;
@@ -936,7 +959,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   $('form').addEventListener('submit',e=>{e.preventDefault();saveForm();});
   $('form').addEventListener('keydown',e=>{ if(e.key==='Enter'&&e.target.tagName==='INPUT'&&e.target.type!=='radio'){e.preventDefault();saveForm();} });
   ['fHoras','fTotal','fFecha'].forEach(id=>$(id).addEventListener('input',updateCalc));
-  document.querySelectorAll('input[name=estado]').forEach(r=>r.addEventListener('change',syncTipo));
+  document.querySelectorAll('input[name=estado]').forEach(r=>r.addEventListener('change',()=>{
+    // al marcar Reservada sin nada cobrado, se apunta la señal de 100 €
+    if(getEstado()==='reserva'&&!num($('fPagado').value)) $('fPagado').value=senal(num($('fTotal').value));
+    syncTipo(); updateCalc();
+  }));
   const autoSet=()=>{ if(getEstado()!=='cancelada'&&getEstado()!=='personal'&&$('fPagado').value!=='') setEstado(autoEstado(num($('fTotal').value),num($('fPagado').value))); updateCalc(); };
   $('fPagado').addEventListener('input',autoSet); $('fTotal').addEventListener('input',autoSet);
   $('tabs').addEventListener('click',e=>{
