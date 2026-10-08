@@ -154,7 +154,7 @@ td a:hover{text-decoration:underline}
 .sbtn{display:inline-flex;align-items:center;gap:7px;border:0;background:none;border-radius:999px;padding:8px 16px;font-weight:700;font-size:.9rem;color:var(--muted);cursor:pointer}
 .sbtn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .sbtn[aria-current="page"]{background:var(--ink);color:#fff}
-.sec[hidden]{display:none}
+.sec[hidden],footer.tools[hidden]{display:none}
 .card{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:16px}
 
 /* Disponibilidad */
@@ -187,23 +187,28 @@ td a:hover{text-decoration:underline}
 .season-nav{display:flex;gap:6px}
 .season-nav .btn{padding:6px 13px}
 .season-sum{color:var(--muted);font-size:.88rem;margin:4px 0 14px}
-.srow{display:grid;grid-template-columns:44px repeat(5,minmax(0,1fr));gap:5px;align-items:stretch;margin-bottom:5px}
-.srow .m{font-size:.74rem;font-weight:800;text-transform:uppercase;color:var(--muted);align-self:center}
-.sq{position:relative;border:1px solid var(--lib-b);background:var(--lib);border-radius:8px;padding:5px 7px;min-height:44px;cursor:pointer;text-align:left;overflow:hidden}
-.sq b{display:block;font-size:.85rem}
-.sq span{display:block;font-size:.72rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sq.s-sin{background:var(--sin);border-color:var(--sin-b)} .sq.s-reserva{background:var(--res);border-color:var(--res-b)}
-.sq.s-pagado{background:var(--pag);border-color:var(--pag-b)} .sq.s-cancelada{background:var(--can);border-color:var(--can-b)}
-.sq.s-personal{background:var(--per);border-color:var(--per-b)}
-.sq.past{opacity:.45}
-.sq.today{box-shadow:inset 0 0 0 2px var(--ink)}
-.sq b{text-transform:lowercase}
-.sq .ox{display:block;margin-top:3px;padding:1px 0 1px 5px;border:0;border-left:3px solid;background:none!important;font-size:.68rem;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-radius:0}
-.sq .ox span{display:inline;font-size:inherit;font-weight:600}
-.sq .ox.ev-sin{border-left-color:var(--sin-b)} .sq .ox.ev-reserva{border-left-color:var(--res-b)} .sq .ox.ev-pagado{border-left-color:var(--pag-b)}
-.sq .ox.ev-personal{border-left-color:var(--per-b)}
-.sq .fx{position:absolute;bottom:4px;right:6px;font-size:.62rem;font-weight:800;font-style:normal;color:var(--muted)}
-.sq:hover{border-color:var(--ink)}
+/* Temporada: una fila por mes, una etiqueta por sábado libre y por evento; si no cabe, se desliza */
+.srow{display:grid;grid-template-columns:44px minmax(0,1fr);gap:6px;align-items:center;margin-bottom:6px}
+.srow .m{font-size:.74rem;font-weight:800;text-transform:uppercase;color:var(--muted)}
+.tags{display:flex;gap:5px;overflow-x:auto;scrollbar-width:thin;padding-bottom:3px;-webkit-overflow-scrolling:touch}
+.tg{position:relative;flex:0 0 calc((100% - 20px)/5);min-width:118px;border:1px solid var(--lib-b);background:var(--lib);border-radius:8px;padding:5px 8px;min-height:44px;cursor:pointer;text-align:left;overflow:hidden}
+.tg b{display:block;font-size:.82rem;text-transform:lowercase}
+.tg .tl{display:block;width:100%;border:0;background:none!important;padding:0;margin:0;text-align:left;cursor:pointer;font-size:.72rem;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tg .tl.libre{color:var(--muted);font-weight:500}
+.tg .tl.ev-cancelada{text-decoration:line-through}
+.tg .tl:hover{text-decoration:underline}
+/* varios en el mismo día: una línea por evento con la marca de su color */
+.tg.multi .tl{border-left:3px solid var(--lib-b);padding-left:5px;margin-top:2px}
+.tg.multi .tl.ev-sin{border-left-color:var(--sin-b)} .tg.multi .tl.ev-reserva{border-left-color:var(--res-b)}
+.tg.multi .tl.ev-pagado{border-left-color:var(--pag-b)} .tg.multi .tl.ev-cancelada{border-left-color:var(--can-b)}
+.tg.multi .tl.ev-personal{border-left-color:var(--per-b)}
+.tg.s-sin{background:var(--sin);border-color:var(--sin-b)} .tg.s-reserva{background:var(--res);border-color:var(--res-b)}
+.tg.s-pagado{background:var(--pag);border-color:var(--pag-b)} .tg.s-cancelada{background:var(--can);border-color:var(--can-b)}
+.tg.s-personal{background:var(--per);border-color:var(--per-b)}
+.tg.past{opacity:.45}
+.tg.today{box-shadow:inset 0 0 0 2px var(--ink)}
+.tg .fx{position:absolute;bottom:4px;right:6px;font-size:.62rem;font-weight:800;font-style:normal;color:var(--muted)}
+.tg:hover{border-color:var(--ink)}
 .season-help{color:var(--muted);font-size:.8rem;margin:10px 0 0}
 
 /* Cobros */
@@ -234,12 +239,11 @@ td a:hover{text-decoration:underline}
   .wrap{padding-bottom:110px}
   .toast{bottom:calc(86px + env(safe-area-inset-bottom,0px))}
   .card{padding:14px;border-radius:14px}
-  .srow{grid-template-columns:30px repeat(5,minmax(0,1fr));gap:3px}
+  .srow{grid-template-columns:30px minmax(0,1fr);gap:4px}
   .srow .m{font-size:.62rem}
-  .sq{min-height:36px;padding:4px 5px;border-radius:6px}
-  .sq span,.sq .ox span{display:none}
-  .sq b{font-size:.7rem;white-space:nowrap;letter-spacing:-.02em}
-  .sq .ox{font-size:.6rem;padding-left:3px;margin-top:2px}
+  .tg{flex-basis:96px;min-width:96px;min-height:40px;padding:4px 6px;border-radius:7px}
+  .tg b{font-size:.74rem}
+  .tg .tl{font-size:.66rem}
   .crow{grid-template-columns:62px 1fr auto}
   .crow .a{grid-column:1/-1;justify-content:flex-end}
 }
@@ -391,16 +395,8 @@ form.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;padding:10px 
   </nav>
 
 
-  <!-- DISPONIBILIDAD: responder al momento "¿tienes libre tal fecha?" -->
+  <!-- DISPONIBILIDAD: la temporada de cada año, una etiqueta por evento -->
   <section class="sec" id="sec-disp">
-    <div class="card check">
-      <label class="check-lbl" for="chkFecha">¿Qué fecha te piden?</label>
-      <div class="check-row">
-        <input type="date" id="chkFecha">
-        <button class="btn" type="button" id="chkSab">Este sábado</button>
-      </div>
-      <div id="chkRes" aria-live="polite"></div>
-    </div>
     <div class="card season">
       <div class="season-head">
         <h2>Temporada <span id="seasonYear"></span></h2>
@@ -411,7 +407,6 @@ form.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;padding:10px 
       </div>
       <p class="season-sum" id="seasonSum"></p>
       <div id="seasonGrid"></div>
-      <p class="season-help">Cada casilla es un sábado: púlsala para ver la boda o apuntar una. Si ese sábado hay más de un evento, o hay eventos otros días de esa semana, cada uno sale dentro con su fecha (por ejemplo, «sáb 18», «mar 8» o «dom 13») y se abre al pulsarlo. La F indica que hay festivo.</p>
     </div>
   </section>
 
@@ -439,7 +434,7 @@ form.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;padding:10px 
   </section>
   </section>
 
-  <footer class="tools">
+  <footer class="tools" id="tools">
     <button class="btn" id="btnImport">Importar Excel o CSV</button>
     <button class="btn" id="btnExport">Exportar a Excel</button>
     <button class="btn" id="btnBackup">Copia de seguridad</button>
@@ -864,7 +859,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           return;
         }
         const b=r.b, total=num(b.total), pend=Math.max(total-num(b.pagado),0), ws=weekendSat(r.fecha), fh=ws&&hol[ws];
-        html+=`<tr class="fila r-${b.estado}${past?' pasado':''}" data-id="${b.id}" tabindex="0">
+        html+=`<tr class="fila r-${b.estado}${past?' pasado':''}" data-id="${b.id}" data-f="${r.fecha}" tabindex="0">
           <td class="dia"><b>${d.getDate()}</b>${wd}</td>
           <td class="c-nov"${compact?` title="${esc([b.novios,fh?'Festivo: '+festText(fh):''].filter(Boolean).join(' · '))}"`:''}><span class="nov">${esc(b.novios)||'Sin nombre'}</span>${actByDate[b.fecha]>1&&ocupa(b)?`<span class="clash">${actByDate[b.fecha]} eventos este día</span>`:''}${fh?`<span class="fest-tag">Festivo: ${esc(festText(fh))}</span>`:''}</td>
           <td class="num" data-l="Horas">${fmtH(b.horas)}</td>
@@ -1317,55 +1312,16 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
   function showSec(s){
     ['disp','agenda','cobros'].forEach(k=>$('sec-'+k).hidden=k!==s);
+    $('tools').hidden=s!=='agenda'; // importar, copias, festivos, textos…: solo en la Agenda
     $('secnav').querySelectorAll('.sbtn').forEach(b=>{ if(b.dataset.s===s) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current'); });
     try{ localStorage.setItem(KEY_SEC,s); }catch(e){}
   }
-  $('secnav').addEventListener('click',e=>{ const b=e.target.closest('.sbtn'); if(b){ showSec(b.dataset.s); window.scrollTo(0,0); } });
-
-  // --- Disponibilidad ---
-  const ICON_OK='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M7.5 12.5l3 3 6-6.5"/></svg>';
-  const ICON_NO='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7"/></svg>';
-  // sábados libres más cercanos (n antes, solo futuros, y n después)
-  function freeSatsNear(sat,n){
-    const occ=new Set(bodas.filter(ocupa).map(b=>b.fecha)), hoy=todayStr(), before=[], after=[];
-    for(let i=1;i<=26&&(before.length<n||after.length<n);i++){
-      const a=addDays(sat,7*i), b=addDays(sat,-7*i);
-      if(after.length<n&&a>=hoy&&!occ.has(a)) after.push(a);
-      if(before.length<n&&b>=hoy&&!occ.has(b)) before.push(b);
-    }
-    return [...before.reverse(),...after];
-  }
-  function renderCheck(){
-    const f=$('chkFecha').value, box=$('chkRes');
-    if(!f){ box.innerHTML=''; return; }
-    const evs=bodas.filter(b=>b.fecha===f), act=evs.filter(ocupa), canc=evs.filter(b=>!ocupa(b)), libre=!act.length;
-    const sat=satFor(f), hol=holidaysBySat(f.slice(0,4))[sat];
-    const finde=[addDays(sat,-1),sat,addDays(sat,1)].filter(x=>x!==f); // viernes, sábado y domingo
-    const otros=bodas.filter(b=>finde.includes(b.fecha)&&ocupa(b));
-    const sats=freeSatsNear(sat,2);
-    ensureHolidays(f.slice(0,4));
-    const chip=b=>`<button type="button" class="evchip ev-${b.estado}" data-id="${b.id}">${esc(b.novios)} <small>${ESTADOS[b.estado]}${b.fecha!==f?' · '+corto(b.fecha):''}</small></button>`;
-    box.innerHTML=`<div class="res">
-      <div class="res-big">${libre?ICON_OK+'Libre':ICON_NO+'Ocupado'}</div>
-      <p class="res-date">${cap(largo(f))}${f<todayStr()?' · ya ha pasado':''}</p>
-      ${hol?`<p class="res-fest">Festivo ese fin de semana: ${esc(festText(hol))}</p>`:''}
-      ${act.length||otros.length?`<div class="res-ev">${act.map(chip).join('')}${otros.map(chip).join('')}</div>`:''}
-      ${canc.length?`<p class="res-fest">Cancelada ese día: ${canc.map(b=>esc(b.novios)).join(', ')}</p>`:''}
-      <div class="res-actions">
-        ${libre?`<button class="btn primary" type="button" id="resNew">+ Apuntar boda este día</button>`:''}
-        <button class="btn" type="button" id="resCopy">Copiar respuesta para el cliente</button>
-      </div>
-      ${sats.length?`<h3>Sábados libres cercanos</h3><div class="near">${sats.map(s=>{ const h=holidaysBySat(s.slice(0,4))[s]; return `<button type="button" data-f="${s}"><b>${cap(corto(s))}</b><span>${s.slice(0,4)}</span>${h?`<i>Festivo: ${esc(h.map(x=>x.n).join(', '))}</i>`:''}</button>`; }).join('')}</div>`:''}
-    </div>`;
-    $('resCopy').onclick=()=>copyText(replyAvailability(f,libre,sats));
-    if(libre) $('resNew').onclick=()=>openForm(null,null,f);
-  }
-  $('chkRes').addEventListener('click',e=>{
-    const c=e.target.closest('.evchip'); if(c){ const b=bodas.find(x=>x.id===c.dataset.id); if(b) openForm(b); return; }
-    const n=e.target.closest('.near button'); if(n){ $('chkFecha').value=n.dataset.f; renderCheck(); }
+  $('secnav').addEventListener('click',e=>{
+    const b=e.target.closest('.sbtn'); if(!b) return;
+    showSec(b.dataset.s);
+    if(b.dataset.s==='agenda') irASemanaActual(); else window.scrollTo(0,0);
   });
-  $('chkFecha').addEventListener('input',renderCheck);
-  $('chkSab').onclick=()=>{ $('chkFecha').value=nextSaturday(); renderCheck(); };
+
 
   // --- Textos para el cliente (los de Iker). Se copian o se abren en WhatsApp/email; nunca se envían solos ---
   // Huecos: {nombre} = nombre del cliente, {fecha} = "29 de julio", {iban} = IBAN guardado solo en este dispositivo
@@ -1555,35 +1511,36 @@ Un saludo!!`
     $('seasonYear').textContent=y;
     const hoy=todayStr(), prox=nextSaturday(), hol=holidaysBySat(y), byDate={};
     bodas.forEach(b=>{ (byDate[b.fecha]=byDate[b.fecha]||[]).push(b); });
-    const rank={pagado:0,reserva:1,sin:2,personal:3};
-    // eventos de lunes a viernes y domingo: van en la casilla del sábado de su semana (el domingo, con el sábado anterior)
+    const rank={pagado:0,reserva:1,sin:2,personal:3,cancelada:5};
     const wd=f=>parseDate(f).toLocaleDateString('es-ES',{weekday:'short'}).replace('.','');
-    const semana={};
-    bodas.filter(b=>ocupa(b)&&parseDate(b.fecha).getDay()!==6).sort((a,b)=>a.fecha.localeCompare(b.fecha)).forEach(b=>{
-      const d=parseDate(b.fecha).getDay(), s=addDays(b.fecha,d===0?-1:6-d); (semana[s]=semana[s]||[]).push(b);
-    });
     let html='', ocupados=0, libres=0, porDelante=0;
     for(let m=0;m<12;m++){
-      html+=`<div class="srow"><span class="m">${MESES[m].slice(0,3)}</span>`;
-      saturdays(y,m).forEach(s=>{
-        const evs=byDate[s]||[], delSabado=evs.filter(ocupa).sort((a,b)=>rank[a.estado]-rank[b.estado]), main=delSabado[0];
-        // el resto de eventos del sábado y los de otros días de la semana: cada uno con su etiqueta y su fecha
-        const otros=[...delSabado.slice(1),...(semana[s]||[])].sort((a,b)=>a.fecha.localeCompare(b.fecha));
-        if(main) ocupados++; else { libres++; if(s>=hoy) porDelante++; }
-        const title=[cap(corto(s)),...evs.filter(b=>!otros.includes(b)).map(b=>`${b.novios} (${ESTADOS[b.estado]})`),...otros.map(b=>`${cap(corto(b.fecha))}: ${b.novios} (${ESTADOS[b.estado]})`),hol[s]?'Festivo: '+festText(hol[s]):''].filter(Boolean).join(' · ');
-        html+=`<button type="button" class="sq${main?' s-'+main.estado:''}${s<hoy?' past':''}${s===prox?' today':''}" data-f="${s}"${main?` data-id="${main.id}"`:''} title="${esc(title)}"><b>${wd(s)} ${+s.slice(8)}</b>${main?`<span>${esc(main.novios)}</span>`:''}${otros.map(b=>`<small class="ox ev-${b.estado}" data-id="${b.id}">${wd(b.fecha)} ${+b.fecha.slice(8)}<span> · ${esc(b.novios)}</span></small>`).join('')}${hol[s]?'<em class="fx">F</em>':''}</button>`;
-      });
-      html+='</div>';
+      // una etiqueta por día: cada sábado y cada día con algún evento; dentro, una línea por evento
+      const mk=`${y}-${pad(m+1)}`, dias=new Set(saturdays(y,m));
+      bodas.forEach(b=>{ if(b.fecha.startsWith(mk)) dias.add(b.fecha); });
+      const tags=[...dias].sort().map(f=>{
+        const evs=(byDate[f]||[]).slice().sort((a,b)=>(rank[a.estado]??3)-(rank[b.estado]??3)), act=evs.filter(ocupa);
+        const sab=parseDate(f).getDay()===6, libre=sab&&!act.length, h=sab&&hol[f];
+        if(sab){ if(act.length) ocupados++; else { libres++; if(f>=hoy) porDelante++; } }
+        const lineas=[...(libre?[null]:[]),...evs]; // null = "Libre"
+        const cls=act.length?'s-'+act[0].estado:(libre?'libre':'s-cancelada');
+        const title=[cap(corto(f)),...lineas.map(b=>b?`${b.novios} (${ESTADOS[b.estado]})`:'Libre'),h?'Festivo: '+festText(h):''].filter(Boolean).join(' · ');
+        return `<div class="tg ${cls}${lineas.length>1?' multi':''}${f<hoy?' past':''}${f===prox&&libre?' today':''}" data-f="${f}" title="${esc(title)}"><b>${wd(f)} ${+f.slice(8)}</b>${lineas.map(b=>b
+          ?`<button type="button" class="tl ev-${b.estado}" data-id="${b.id}">${esc(b.novios)}</button>`
+          :`<button type="button" class="tl libre" data-f="${f}">Libre</button>`).join('')}${h?'<em class="fx">F</em>':''}</div>`;
+      }).join('');
+      html+=`<div class="srow"><span class="m">${MESES[m].slice(0,3)}</span><div class="tags">${tags}</div></div>`;
     }
     $('seasonGrid').innerHTML=html;
     $('seasonSum').textContent=`${ocupados} ${ocupados===1?'sábado ocupado':'sábados ocupados'} · ${libres} libres${porDelante&&porDelante!==libres?` (${porDelante} por delante)`:''}`;
   }
+  // al pulsar una etiqueta: su ficha, o una ficha nueva en ese sábado para apuntar la reserva
+  // (cada línea de la etiqueta abre lo suyo; pulsar fuera de las líneas abre la primera)
   $('seasonGrid').addEventListener('click',e=>{
-    // evento de otro día de la semana dentro de la casilla
-    const ox=e.target.closest('.ox'); if(ox){ const b=bodas.find(x=>x.id===ox.dataset.id); if(b) openForm(b); return; }
-    const q=e.target.closest('.sq'); if(!q) return;
-    if(q.dataset.id){ const b=bodas.find(x=>x.id===q.dataset.id); if(b) openForm(b); return; }
-    $('chkFecha').value=q.dataset.f; renderCheck(); window.scrollTo({top:0,behavior:'smooth'});
+    const t=e.target.closest('.tg'); if(!t) return;
+    const l=e.target.closest('.tl')||t.querySelector('.tl'); if(!l) return;
+    if(l.dataset.id){ const b=bodas.find(x=>x.id===l.dataset.id); if(b) openForm(b); }
+    else openForm(null,null,l.dataset.f);
   });
   $('seasonPrev').onclick=()=>{ seasonYear=String(+(seasonYear||selYear||new Date().getFullYear())-1); renderSeason(); };
   $('seasonNext').onclick=()=>{ seasonYear=String(+(seasonYear||selYear||new Date().getFullYear())+1); renderSeason(); };
@@ -1618,9 +1575,18 @@ Un saludo!!`
     save(); renderAll();
   });
 
-  function renderExtra(){ renderCheck(); renderSeason(); renderCobros(); }
+  function renderExtra(){ renderSeason(); renderCobros(); }
   try{ showSec(localStorage.getItem(KEY_SEC)||'disp'); }catch(e){ showSec('disp'); }
-  $('chkFecha').value=nextSaturday();
+
+  // Agenda: llevar a la semana actual (desde el lunes de esta semana) en vez de empezar arriba
+  function irASemanaActual(){
+    const cy=String(new Date().getFullYear());
+    if(selYear!==cy&&years().includes(cy)){ selYear=cy; statusFilter.clear(); renderAll(); }
+    if(selYear!==cy){ window.scrollTo(0,0); return; }
+    const lunes=addDays(todayStr(),-((new Date().getDay()+6)%7));
+    const tr=[...$('months').querySelectorAll('tr.fila')].find(t=>(t.dataset.f||t.dataset.fecha)>=lunes);
+    if(tr) tr.scrollIntoView({block:'center'}); else window.scrollTo(0,0);
+  }
 
   // ---------- pegar solicitud de presupuesto ----------
   // Lee líneas "Campo: valor" (Nombre, Fecha, Lugar, Email, Teléfono…); lo que no reconoce va a observaciones
@@ -1732,6 +1698,7 @@ Un saludo!!`
   $('fileJson').onchange=e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>restore(r.result); r.readAsText(f,'utf-8'); e.target.value=''; };
 
   load(); $('currency').value=currency; selYear=defaultYear(); renderAll();
+  if(!$('sec-agenda').hidden) irASemanaActual();
 })();
 </script>
 </body>
