@@ -47,6 +47,14 @@ button,input,select,textarea{font:inherit;color:inherit}
 .steps{margin:0;padding:6px 22px 4px 42px}
 .steps li{margin-bottom:8px}
 .steps b{white-space:nowrap}
+.fest-help{margin:0 22px 8px;color:var(--muted);font-size:.86rem}
+.fest-list{list-style:none;margin:0 22px;padding:0;border-top:1px solid var(--line)}
+.fest-list li{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:.9rem}
+.fest-list li span{flex:1}
+.fest-list small{color:var(--muted)}
+.fest-list .vacio{color:var(--muted)}
+.fest-chk{flex-direction:row;font-size:.88rem;color:var(--muted);font-weight:600;cursor:pointer}
+.f.fest-chk input{width:auto;padding:0;border:0;margin:0 6px 0 0;vertical-align:-2px;accent-color:var(--accent)}
 .note{margin:4px 22px 0;padding:10px 12px;border-radius:10px;background:var(--res);border:1px solid var(--res-b);font-size:.86rem}
 
 header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:22px}
@@ -128,6 +136,39 @@ td a:hover{text-decoration:underline}
 .est{font-size:.78rem;font-weight:800;white-space:nowrap}
 .clash{display:block;color:var(--can-b);font-size:.78rem;font-weight:700}
 
+/* Selector de vista */
+.vista{display:inline-flex;border:1px solid var(--line);border-radius:999px;background:var(--surface);padding:2px;flex:none}
+.vbtn{border:0;background:none;border-radius:999px;padding:6px 13px;font-weight:700;font-size:.82rem;cursor:pointer;color:var(--muted)}
+.vbtn[aria-pressed="true"]{background:var(--ink);color:#fff}
+
+/* Vista compacta: como una hoja de Excel */
+body.compacta .mes{margin-top:14px}
+body.compacta .mes h2{font-size:.95rem;margin-bottom:4px;padding-bottom:3px}
+body.compacta table{border-collapse:collapse;border-spacing:0;min-width:980px;width:100%;table-layout:fixed;background:var(--surface)}
+body.compacta th{font-size:.7rem;padding:3px 6px;background:#EFE7D8;border:1px solid var(--line);color:#4A443C;white-space:nowrap;overflow:hidden}
+/* mismas columnas en todos los meses */
+body.compacta th:nth-child(1){width:66px} body.compacta th:nth-child(2){width:19%} body.compacta th:nth-child(3){width:46px}
+body.compacta th:nth-child(4),body.compacta th:nth-child(5){width:74px} body.compacta th:nth-child(6){width:15%}
+body.compacta th:nth-child(7){width:17%} body.compacta th:nth-child(9){width:80px}
+body.compacta td{padding:3px 6px;border:1px solid var(--line);border-radius:0;font-size:.78rem;line-height:1.35;white-space:nowrap;vertical-align:middle;overflow:hidden;text-overflow:ellipsis}
+body.compacta tr.fila td{border-color:var(--line)}
+body.compacta tr.fila td:first-child{border-left:3px solid var(--line);border-radius:0}
+body.compacta tr.fila td:last-child{border-radius:0}
+body.compacta td.c-nov{max-width:230px;overflow:hidden;text-overflow:ellipsis}
+body.compacta td.notas{max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+body.compacta td[data-l="Ubicación"],body.compacta td[data-l="Contacto"]{max-width:190px;overflow:hidden;text-overflow:ellipsis}
+body.compacta .dia b{font-family:var(--sans);font-size:.8rem;margin-right:3px}
+body.compacta .clash,body.compacta .fest-tag{display:inline;margin:0 0 0 8px;font-size:.72rem}
+body.compacta tr.libre td{padding-top:2px;padding-bottom:2px}
+body.compacta tr.libre .dia b{font-size:.8rem}
+body.compacta tr.libre .libre-txt,body.compacta .fest-txt,body.compacta tr.libre .add-hint{font-size:.74rem}
+body.compacta tr.r-sin td{background:var(--sin)!important} body.compacta tr.r-sin td:first-child{border-left-color:var(--sin-b)}
+body.compacta tr.r-reserva td{background:var(--res)!important} body.compacta tr.r-reserva td:first-child{border-left-color:var(--res-b)}
+body.compacta tr.r-pagado td{background:var(--pag)!important} body.compacta tr.r-pagado td:first-child{border-left-color:var(--pag-b)}
+body.compacta tr.r-cancelada td{background:var(--can)!important} body.compacta tr.r-cancelada td:first-child{border-left-color:var(--can-b)}
+body.compacta tr.r-personal td{background:var(--per)!important} body.compacta tr.r-personal td:first-child{border-left-color:var(--per-b)}
+body.compacta tr.libre td{background:var(--lib)!important}
+
 .empty{text-align:center;padding:44px 20px;border:1px dashed var(--line);border-radius:14px;color:var(--muted);background:var(--surface)}
 .empty p{margin:0 0 14px}
 
@@ -185,6 +226,27 @@ form.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;padding:10px 
   td[data-l]::before{content:attr(data-l) ": ";color:var(--muted);font-weight:600}
   td[data-l]:empty{display:none}
   form.grid{grid-template-columns:1fr}
+  /* en el móvil, la vista compacta sigue siendo una tabla en filas (se desliza a los lados) */
+  body.compacta table{display:table;min-width:900px}
+  body.compacta thead{display:table-header-group}
+  body.compacta tbody{display:table-row-group}
+  body.compacta tr,body.compacta tr.fila{display:table-row;border:0;padding:0;margin:0;background:none}
+  body.compacta td,body.compacta td[data-l]:empty{display:table-cell}
+  body.compacta td[data-l]::before{content:none}
+  body.compacta td.num{text-align:right}
+  body.compacta .fest-txt{display:inline;margin-left:10px}
+  body.compacta tr.libre td{padding:2px 6px}
+  /* todos los meses se deslizan juntos y la fecha queda fija, como "inmovilizar" en Excel */
+  body.compacta #months{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  body.compacta .tbl-wrap{overflow:visible}
+  body.compacta .mes{min-width:900px}
+  body.compacta .mes h2{position:sticky;left:0;width:calc(100vw - 62px)}
+  body.compacta table{border-collapse:separate;border-spacing:0;border-top:1px solid var(--line)}
+  body.compacta th,body.compacta td{border-width:0 1px 1px 0}
+  body.compacta th:first-child,body.compacta td:first-child{position:sticky;left:0;z-index:1;border-left:3px solid var(--line)}
+  body.compacta th:first-child{background:#EFE7D8}
+  body.compacta tr.libre .add-hint{display:none}
+  .toolbar .vista{order:-1}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 @media print{
@@ -212,6 +274,10 @@ form.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;padding:10px 
     <div class="stats" id="stats" aria-label="Resumen del año"></div>
     <div class="toolbar">
       <input class="search" id="q" type="search" placeholder="Buscar novios, lugar, contacto, notas…" aria-label="Buscar">
+      <div class="vista" id="vista" role="group" aria-label="Vista">
+        <button class="vbtn" type="button" data-v="detallada" aria-pressed="true">Vista detallada</button>
+        <button class="vbtn" type="button" data-v="compacta" aria-pressed="false">Vista compacta</button>
+      </div>
     </div>
     <div class="chips" id="chips" role="group" aria-label="Filtrar por estado"></div>
     <div id="months"></div>
@@ -222,6 +288,7 @@ form.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;padding:10px 
     <button class="btn" id="btnExport">Exportar a Excel</button>
     <button class="btn" id="btnBackup">Copia de seguridad</button>
     <button class="btn" id="btnRestore">Restaurar copia</button>
+    <button class="btn" id="btnFest">Festivos locales</button>
     <select id="currency" aria-label="Moneda">
       <option value="EUR">€ Euro</option><option value="USD">$ Dólar</option><option value="MXN">$ Peso MX</option>
       <option value="ARS">$ Peso AR</option><option value="COP">$ Peso CO</option><option value="CLP">$ Peso CL</option>
@@ -267,6 +334,21 @@ form.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;padding:10px 
       <button class="btn primary" id="btnSave" type="button">Guardar boda</button>
     </div>
   </div>
+</dialog>
+
+<dialog id="dlgFest">
+  <div class="dlg-head">
+    <h2>Festivos locales</h2>
+    <button class="x" id="festClose" aria-label="Cerrar">×</button>
+  </div>
+  <p class="fest-help">Se suman a los de Navarra y se indican en el sábado más cercano (lunes y martes, en el sábado anterior; de miércoles a viernes, en el de esa semana).</p>
+  <ul class="fest-list" id="festList"></ul>
+  <form class="grid" id="festForm" autocomplete="off">
+    <div class="f"><label for="festFecha">Fecha</label><input id="festFecha" type="date"></div>
+    <div class="f"><label for="festNombre">Nombre</label><input id="festNombre" type="text" placeholder="Fiestas de Sarriguren"></div>
+    <label class="f full fest-chk"><span><input type="checkbox" id="festAnual" checked> Todos los años en la misma fecha</span></label>
+  </form>
+  <div class="dlg-foot"><div class="r"><button class="btn" id="festOk" type="button">Cerrar</button><button class="btn primary" id="festAdd" type="button">Añadir festivo</button></div></div>
 </dialog>
 
 <dialog id="dlgInstall">
@@ -354,8 +436,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 <script>
 (function(){
   const KEY='agenda-bodas-v1', KEY_Y='agenda-bodas-anios', KEY_CUR='agenda-bodas-moneda';
-  const KEY_FE='agenda-bodas-festivos-excel', KEY_HOL='agenda-bodas-festivos-navarra';
+  const KEY_FE='agenda-bodas-festivos-excel', KEY_HOL='agenda-bodas-festivos-navarra', KEY_LOC='agenda-bodas-festivos-locales';
   let festExcel={}, holCache={}; // festivos marcados en color carne en el Excel / calendario oficial descargado
+  // festivos locales: d = 'MM-DD' (todos los años) o 'AAAA-MM-DD' (solo ese año)
+  const LOCALES_INI=[{d:'07-07',n:'San Fermín (Pamplona)'},{d:'11-29',n:'San Saturnino (Pamplona)'}];
+  let festLocal=LOCALES_INI.slice();
   const ESTADOS={sin:'Sin pagar',reserva:'Reservada',pagado:'Pagada',cancelada:'Cancelada',personal:'Personal'};
   // boda que cuenta (ni cancelada ni evento personal) / día ocupado (todo menos cancelada)
   const isBoda=b=>b.estado!=='cancelada'&&b.estado!=='personal';
@@ -375,6 +460,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     try{ currency=localStorage.getItem(KEY_CUR)||'EUR'; }catch(e){}
     try{ festExcel=JSON.parse(localStorage.getItem(KEY_FE)||'{}')||{}; }catch(e){ festExcel={}; }
     try{ holCache=JSON.parse(localStorage.getItem(KEY_HOL)||'{}')||{}; }catch(e){ holCache={}; }
+    try{ const l=JSON.parse(localStorage.getItem(KEY_LOC)); festLocal=Array.isArray(l)?l:LOCALES_INI.slice(); }catch(e){ festLocal=LOCALES_INI.slice(); }
     // migrar datos de la versión anterior
     bodas=bodas.filter(b=>b&&b.fecha).map(b=>{
       const n={...b};
@@ -387,7 +473,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     });
   }
   function save(){
-    try{ localStorage.setItem(KEY,JSON.stringify(bodas)); localStorage.setItem(KEY_Y,JSON.stringify(extraYears)); localStorage.setItem(KEY_FE,JSON.stringify(festExcel)); }
+    try{ localStorage.setItem(KEY,JSON.stringify(bodas)); localStorage.setItem(KEY_Y,JSON.stringify(extraYears)); localStorage.setItem(KEY_FE,JSON.stringify(festExcel)); localStorage.setItem(KEY_LOC,JSON.stringify(festLocal)); }
     catch(e){ toast('No se pudo guardar en el navegador. Haz una copia de seguridad.'); }
   }
 
@@ -403,13 +489,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
   function autoEstado(total,pagado){ if(pagado<=0) return 'sin'; if(total>0&&pagado>=total) return 'pagado'; return 'reserva'; }
   function toast(msg,ms){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('show'),ms||2600);}
-  function contactLinks(c){
+  function contactLinks(c,sep='<br>'){
     if(!c) return '';
     return c.split(/\s*(?:\/|;|\||,|\sy\s|\so\s)\s*/).filter(Boolean).map(p=>{
       if(p.includes('@')) return `<a href="mailto:${esc(p)}">${esc(p)}</a>`;
       if(/\d{6,}/.test(p.replace(/[\s.\-()+]/g,''))) return `<a href="tel:${esc(p.replace(/[^\d+]/g,''))}">${esc(p)}</a>`;
       return esc(p);
-    }).join('<br>');
+    }).join(sep);
   }
 
   // ---------- festivos (Navarra) ----------
@@ -453,7 +539,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   function satFor(f){ return addDays(f,[-1,-2,-3,3,2,1,0][parseDate(f).getDay()]); }
   function holidaysBySat(year){
     const map={}, add=(f,n)=>{ const s=satFor(f); const l=map[s]=map[s]||[]; if(!l.some(x=>x.f===f)) l.push({f,n}); };
-    [+year-1,+year,+year+1].forEach(y=>holidays(y).forEach(([f,n])=>add(f,n)));
+    [+year-1,+year,+year+1].forEach(y=>{
+      holidays(y).forEach(([f,n])=>add(f,n));
+      festLocal.forEach(({d,n})=>{ if(d.length===5) add(`${y}-${d}`,n); else if(d.startsWith(y+'-')) add(d,n); });
+    });
     Object.entries(festExcel).forEach(([f,n])=>{ if(n==='Festivo'&&map[satFor(f)]) return; add(f,n); });
     return map;
   }
@@ -483,7 +572,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const n=bodas.filter(b=>b.fecha.startsWith(y)&&isBoda(b)).length;
       return `<button class="tab" role="tab" data-y="${y}" aria-selected="${y===selYear}"><span class="y">${y}</span><span class="c">${n} ${n===1?'boda':'bodas'}</span></button>`;
     }).join('')+`<button class="tab add" id="addYear" title="Añadir un año">+ Año</button>`;
-    const act=$('tabs').querySelector('[aria-selected="true"]'); if(act) act.scrollIntoView({block:'nearest',inline:'nearest'});
+    // deja visible la pestaña del año moviendo solo el archivador en horizontal (sin subir la página)
+    const nav=$('tabs'), act=nav.querySelector('[aria-selected="true"]');
+    if(act){
+      const nr=nav.getBoundingClientRect(), ar=act.getBoundingClientRect();
+      if(ar.left<nr.left) nav.scrollLeft-=nr.left-ar.left+6;
+      else if(ar.right>nr.right) nav.scrollLeft+=ar.right-nr.right+6;
+    }
   }
   function renderStats(){
     const set=bodas.filter(b=>b.fecha.startsWith(selYear)&&b.estado!=='personal');
@@ -526,7 +621,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       box.innerHTML=`<div class="empty"><p>Todavía no hay ningún año en el archivador.</p><button class="btn primary" id="emptyNew">+ Añadir la primera boda</button><p style="margin-top:14px">¿Ya las tienes en Excel? Pulsa <strong>Importar Excel o CSV</strong> abajo.</p></div>`;
       $('emptyNew').onclick=()=>openForm(); return;
     }
-    const q=$('q').value.trim().toLowerCase(), hoy=todayStr(), hol=holidaysBySat(selYear);
+    const q=$('q').value.trim().toLowerCase(), hoy=todayStr(), hol=holidaysBySat(selYear), compact=document.body.classList.contains('compacta');
     const wedFilter=[...statusFilter].filter(s=>s!=='libre');
     const filtering=!!q||statusFilter.size>0;
     const showFree=!q&&(statusFilter.size===0||statusFilter.has('libre'));
@@ -573,13 +668,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         const b=r.b, total=num(b.total), pend=Math.max(total-num(b.pagado),0), ws=weekendSat(r.fecha), fh=ws&&hol[ws];
         html+=`<tr class="fila r-${b.estado}${past?' pasado':''}" data-id="${b.id}" tabindex="0">
           <td class="dia"><b>${d.getDate()}</b>${wd}</td>
-          <td class="c-nov"><span class="nov">${esc(b.novios)||'Sin nombre'}</span>${actByDate[b.fecha]>1&&ocupa(b)?`<span class="clash">${actByDate[b.fecha]} eventos este día</span>`:''}${fh?`<span class="fest-tag">Festivo: ${esc(festText(fh))}</span>`:''}</td>
+          <td class="c-nov"${compact?` title="${esc([b.novios,fh?'Festivo: '+festText(fh):''].filter(Boolean).join(' · '))}"`:''}><span class="nov">${esc(b.novios)||'Sin nombre'}</span>${actByDate[b.fecha]>1&&ocupa(b)?`<span class="clash">${actByDate[b.fecha]} eventos este día</span>`:''}${fh?`<span class="fest-tag">Festivo: ${esc(festText(fh))}</span>`:''}</td>
           <td class="num" data-l="Horas">${fmtH(b.horas)}</td>
           <td class="num" data-l="Importe">${total?money(total):''}</td>
           <td class="num" data-l="Pendiente">${!isBoda(b)||!total?'':money(pend)}</td>
           <td data-l="Ubicación">${esc(b.ubicacion)}</td>
-          <td data-l="Contacto">${contactLinks(b.contacto)}</td>
-          <td class="notas" data-l="Observaciones">${esc(b.notas)}</td>
+          <td data-l="Contacto">${contactLinks(b.contacto,compact?' / ':'<br>')}</td>
+          <td class="notas" data-l="Observaciones"${compact&&b.notas?` title="${esc(b.notas)}"`:''}>${esc(b.notas)}</td>
           <td class="c-est"><span class="est">${ESTADOS[b.estado]}</span></td>
         </tr>`;
       });
@@ -648,8 +743,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     const data={fecha,novios,horas:p||hv===''?'':num(hv),total:p?0:num($('fTotal').value),pagado:p?0:num($('fPagado').value),
       estado:getEstado(),ubicacion:$('fUbic').value.trim(),contacto:$('fCont').value.trim(),notas:$('fNotas').value.trim()};
     if(editId){ const i=bodas.findIndex(b=>b.id===editId); bodas[i]={...bodas[i],...data}; toast(p?'Evento actualizado':'Boda actualizada'); }
-    else { bodas.push({id:uid(),...data}); toast(p?'Evento guardado':'Boda guardada'); }
+    else { editId=uid(); bodas.push({id:editId,...data}); toast(p?'Evento guardado':'Boda guardada'); }
+    const id=editId;
     selYear=fecha.slice(0,4); save(); closeForm(); renderAll();
+    // quedarse en el mes del evento guardado
+    const tr=$('months').querySelector(`tr[data-id="${id}"]`);
+    if(tr){ tr.scrollIntoView({block:'center'}); tr.focus({preventScroll:true}); }
   }
   function deleteCurrent(){
     const b=bodas.find(x=>x.id===editId); if(!b) return;
@@ -938,7 +1037,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click();
     setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);
   }
-  function backup(){ download(`bodas-copia-${todayStr()}.json`,JSON.stringify({version:3,moneda:currency,anios:extraYears,festivosExcel:festExcel,bodas},null,2),'application/json'); toast('Copia descargada'); }
+  function backup(){ download(`bodas-copia-${todayStr()}.json`,JSON.stringify({version:3,moneda:currency,anios:extraYears,festivosExcel:festExcel,festivosLocales:festLocal,bodas},null,2),'application/json'); toast('Copia descargada'); }
   function restore(text){
     try{
       const d=JSON.parse(text), arr=Array.isArray(d)?d:d.bodas;
@@ -948,6 +1047,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       if(Array.isArray(d.anios)) localStorage.setItem(KEY_Y,JSON.stringify(d.anios));
       if(d.moneda) localStorage.setItem(KEY_CUR,d.moneda);
       if(d.festivosExcel&&typeof d.festivosExcel==='object') localStorage.setItem(KEY_FE,JSON.stringify(d.festivosExcel));
+      if(Array.isArray(d.festivosLocales)) localStorage.setItem(KEY_LOC,JSON.stringify(d.festivosLocales));
       load(); $('currency').value=currency; selYear=null; save(); renderAll(); toast('Copia restaurada');
     }catch(e){ toast('Ese archivo no es una copia válida'); }
   }
@@ -989,11 +1089,43 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   });
   $('chips').addEventListener('click',e=>{ const c=e.target.closest('.chip'); if(!c||!c.dataset.st) return; const s=c.dataset.st; statusFilter.has(s)?statusFilter.delete(s):statusFilter.add(s); renderChips(); renderMonths(); });
   $('q').addEventListener('input',renderMonths);
+  // vista detallada / compacta (se recuerda en este dispositivo)
+  const KEY_V='agenda-bodas-vista';
+  function setVista(v){
+    document.body.classList.toggle('compacta',v==='compacta');
+    $('vista').querySelectorAll('.vbtn').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===v)));
+    try{ localStorage.setItem(KEY_V,v); }catch(e){}
+  }
+  $('vista').addEventListener('click',e=>{ const b=e.target.closest('.vbtn'); if(b){ setVista(b.dataset.v); renderMonths(); } });
+  try{ setVista(localStorage.getItem(KEY_V)||'detallada'); }catch(e){ setVista('detallada'); }
   $('currency').addEventListener('change',e=>{ currency=e.target.value; try{localStorage.setItem(KEY_CUR,currency);}catch(err){} renderAll(); });
   $('btnImport').onclick=()=>$('fileImp').click();
   $('fileImp').onchange=e=>{ const f=e.target.files[0]; if(f) importFile(f); e.target.value=''; };
   $('btnExport').onclick=exportXlsx;
   $('btnBackup').onclick=backup;
+  // festivos locales
+  function renderFestLocal(){
+    const fmt=d=>{ const [m,dd]=d.slice(-5).split('-'); return `${+dd} de ${MESES[+m-1]}${d.length===5?'':' de '+d.slice(0,4)}`; };
+    const list=[...festLocal].sort((a,b)=>a.d.slice(-5).localeCompare(b.d.slice(-5))||a.d.localeCompare(b.d));
+    $('festList').innerHTML=list.length?list.map(x=>`<li><span>${esc(fmt(x.d))} · ${esc(x.n)} <small>${x.d.length===5?'todos los años':'solo '+x.d.slice(0,4)}</small></span><button class="btn danger" type="button" data-d="${esc(x.d)}" data-n="${esc(x.n)}">Quitar</button></li>`).join('')
+      :'<li class="vacio">No hay festivos locales.</li>';
+  }
+  $('btnFest').onclick=()=>{ renderFestLocal(); $('dlgFest').showModal(); };
+  $('festClose').onclick=$('festOk').onclick=()=>$('dlgFest').close();
+  $('festAdd').onclick=()=>{
+    const f=$('festFecha').value, n=$('festNombre').value.trim();
+    if(!f){ $('festFecha').focus(); toast('Elige la fecha del festivo'); return; }
+    if(!n){ $('festNombre').focus(); toast('Escribe el nombre del festivo'); return; }
+    const d=$('festAnual').checked?f.slice(5):f;
+    if(!festLocal.some(x=>x.d===d&&x.n===n)) festLocal.push({d,n});
+    $('festFecha').value=''; $('festNombre').value='';
+    save(); renderFestLocal(); renderAll(); toast('Festivo añadido');
+  };
+  $('festList').addEventListener('click',e=>{
+    const b=e.target.closest('button[data-d]'); if(!b) return;
+    festLocal=festLocal.filter(x=>!(x.d===b.dataset.d&&x.n===b.dataset.n));
+    save(); renderFestLocal(); renderAll(); toast('Festivo quitado');
+  });
   $('btnRestore').onclick=()=>$('fileJson').click();
   $('fileJson').onchange=e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>restore(r.result); r.readAsText(f,'utf-8'); e.target.value=''; };
 
