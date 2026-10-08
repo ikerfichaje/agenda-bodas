@@ -24,6 +24,8 @@
   --res:#F7E6B5; --res-b:#C98A12;
   --pag:#D6EDDC; --pag-b:#2E8A57;
   --can:#F6D3D0; --can-b:#C2413B;
+  --per:#D9E6F7; --per-b:#2F6DB5;
+  --fes:#FCE4D6; --fes-b:#E0A07A; --fes-ink:#94532A;
   --serif:"Cormorant Garamond", Georgia, "Times New Roman", serif;
   --sans:"Manrope", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   box-sizing:border-box;
@@ -78,6 +80,9 @@ h1{font-family:var(--serif);font-weight:600;font-size:clamp(2.2rem,6vw,3.3rem);l
 .sw{width:14px;height:14px;border-radius:4px;flex:none;border:1.5px solid}
 .sw-sin{background:var(--sin);border-color:var(--sin-b)} .sw-reserva{background:var(--res);border-color:var(--res-b)}
 .sw-pagado{background:var(--pag);border-color:var(--pag-b)} .sw-cancelada{background:var(--can);border-color:var(--can-b)}
+.sw-personal{background:var(--per);border-color:var(--per-b)}
+.sw-fest{background:var(--fes);border-color:var(--fes-b)}
+.chip.legend{cursor:default;border-style:dashed;color:var(--muted)}
 
 /* Meses */
 .mes{margin-top:26px}
@@ -99,6 +104,10 @@ tr.libre .libre-txt{color:var(--muted);font-weight:700}
 tr.libre .add-hint{margin-left:14px;color:var(--accent);font-weight:600;font-size:.85rem;opacity:0}
 tr.libre:hover .add-hint,tr.libre:focus-visible .add-hint{opacity:1}
 tr.libre.pasado{cursor:default}
+tr.libre.fest td{background:var(--fes);border-color:var(--fes-b)}
+tr.libre.fest td:first-child{border-left-color:var(--fes-b)}
+.fest-txt{margin-left:12px;color:var(--fes-ink);font-weight:600;font-size:.84rem}
+.fest-tag{display:inline-block;margin-top:3px;padding:1px 9px;border-radius:999px;background:var(--fes);border:1px solid var(--fes-b);color:var(--fes-ink);font-size:.74rem;font-weight:700}
 tr.pasado{opacity:.6}
 .sw-libre{background:transparent;border-color:var(--muted);border-style:dashed}
 tr.fila:hover td{filter:brightness(.97)}
@@ -109,6 +118,8 @@ tr.fila:focus-visible td{box-shadow:inset 0 0 0 2px var(--accent)}
 .r-pagado td{background:var(--pag);border-color:var(--pag-b)}
 .r-cancelada td{background:var(--can);border-color:var(--can-b)}
 .r-cancelada .nov{text-decoration:line-through}
+.r-personal td{background:var(--per);border-color:var(--per-b)}
+.r-personal .est{color:var(--per-b)}
 .dia{white-space:nowrap}
 .dia b{font-family:var(--serif);font-size:1.5rem;line-height:1;margin-right:4px}
 .nov{font-weight:700;overflow-wrap:anywhere}
@@ -135,6 +146,7 @@ dialog::backdrop{background:rgba(30,25,15,.5)}
 form.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;padding:10px 22px 4px}
 .f{display:flex;flex-direction:column;gap:4px}
 .f.full{grid-column:1/-1}
+.f[hidden],.calc[hidden]{display:none}
 .f label,.f .lbl{font-size:.85rem;font-weight:600;color:var(--muted)}
 .f input,.f textarea{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:9px 11px;width:100%}
 .f textarea{min-height:80px;resize:vertical}
@@ -161,6 +173,7 @@ form.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;padding:10px 
   tr.fila{display:grid;grid-template-columns:auto 1fr auto;gap:2px 10px;border:1px solid;border-left-width:5px;border-radius:10px;padding:10px 12px;margin-bottom:8px}
   tr.r-sin{background:var(--sin);border-color:var(--sin-b)} tr.r-reserva{background:var(--res);border-color:var(--res-b)}
   tr.r-pagado{background:var(--pag);border-color:var(--pag-b)} tr.r-cancelada{background:var(--can);border-color:var(--can-b)}
+  tr.r-personal{background:var(--per);border-color:var(--per-b)}
   td,td:first-child,td:last-child{border:none;border-radius:0;padding:0;background:transparent!important;max-width:none}
   td.dia{grid-row:1/3}
   tr.libre{background:transparent;border-color:var(--line);border-style:dashed;padding:8px 12px}
@@ -168,6 +181,8 @@ form.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;padding:10px 
   tr.libre td{border:none!important;padding:0}
   tr.libre .dia b{font-size:1.15rem}
   tr.libre .add-hint{opacity:1}
+  tr.libre.fest{background:var(--fes);border-color:var(--fes-b);border-style:solid}
+  .fest-txt{display:block;margin-left:0}
   td.c-nov{grid-column:2}
   td.c-est{grid-column:3;grid-row:1;text-align:right}
   td[data-l]{grid-column:2/4;font-size:.86rem;text-align:left}
@@ -217,7 +232,7 @@ form.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;padding:10px 
     </select>
     <input type="file" id="fileImp" accept=".xlsx,.xls,.xlsm,.ods,.csv" hidden>
     <input type="file" id="fileJson" accept=".json,application/json" hidden>
-    <p class="hint">Al importar, las columnas se leen en este orden: fecha, novios, horas, importe, ubicación, contacto, observaciones. Cada hoja del Excel se trata como un año. Los datos se guardan en este navegador: haz una copia de seguridad de vez en cuando.</p>
+    <p class="hint">Al importar se leen solo las columnas con título (Fecha, Novios, Horas, Importe, Cobrado, Ubicación, Contacto, Observaciones, Estado); las demás columnas con título van a observaciones. Las filas en azul se importan como eventos personales y las de color carne, como festivos. Los festivos de Navarra se descargan solos. Los datos se guardan en este navegador: haz una copia de seguridad de vez en cuando.</p>
   </footer>
 </div>
 
@@ -228,7 +243,7 @@ form.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;padding:10px 
   </div>
   <form class="grid" id="form" autocomplete="off">
     <div class="f"><label for="fFecha">Fecha</label><input id="fFecha" type="date" required></div>
-    <div class="f"><label for="fNovios">Novios</label><input id="fNovios" type="text" placeholder="Laura y Javier" required></div>
+    <div class="f"><label for="fNovios" id="lblNovios">Novios</label><input id="fNovios" type="text" placeholder="Laura y Javier" required></div>
     <div class="f"><label for="fHoras">Duración (horas)</label><input id="fHoras" type="number" min="0" step="0.5" inputmode="decimal" placeholder="8"></div>
     <div class="f"><label for="fTotal">Importe total</label><input id="fTotal" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0"></div>
     <div class="f"><label for="fPagado">Cobrado hasta ahora</label><input id="fPagado" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0"></div>
@@ -241,6 +256,7 @@ form.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;padding:10px 
         <label><input type="radio" name="estado" value="reserva"><span class="sw sw-reserva"></span>Reservada (señal)</label>
         <label><input type="radio" name="estado" value="pagado"><span class="sw sw-pagado"></span>Pagada completa</label>
         <label><input type="radio" name="estado" value="cancelada"><span class="sw sw-cancelada"></span>Cancelada</label>
+        <label><input type="radio" name="estado" value="personal"><span class="sw sw-personal"></span>Evento personal</label>
       </div>
     </div>
     <div class="f full"><label for="fUbic">Ubicación</label><input id="fUbic" type="text" placeholder="Finca, ciudad o dirección"></div>
@@ -342,7 +358,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 <script>
 (function(){
   const KEY='agenda-bodas-v1', KEY_Y='agenda-bodas-anios', KEY_CUR='agenda-bodas-moneda';
-  const ESTADOS={sin:'Sin pagar',reserva:'Reservada',pagado:'Pagada',cancelada:'Cancelada'};
+  const KEY_FE='agenda-bodas-festivos-excel', KEY_HOL='agenda-bodas-festivos-navarra';
+  let festExcel={}, holCache={}; // festivos marcados en color carne en el Excel / calendario oficial descargado
+  const ESTADOS={sin:'Sin pagar',reserva:'Reservada',pagado:'Pagada',cancelada:'Cancelada',personal:'Personal'};
+  // boda que cuenta (ni cancelada ni evento personal) / día ocupado (todo menos cancelada)
+  const isBoda=b=>b.estado!=='cancelada'&&b.estado!=='personal';
+  const ocupa=b=>b.estado!=='cancelada';
   const MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   let bodas=[], extraYears=[], selYear=null, editId=null, statusFilter=new Set(), currency='EUR';
   const $=id=>document.getElementById(id);
@@ -353,6 +374,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     try{ const r=localStorage.getItem(KEY); bodas=r?JSON.parse(r):[]; if(!Array.isArray(bodas)) bodas=[]; }catch(e){ bodas=[]; }
     try{ extraYears=JSON.parse(localStorage.getItem(KEY_Y)||'[]'); if(!Array.isArray(extraYears)) extraYears=[]; }catch(e){ extraYears=[]; }
     try{ currency=localStorage.getItem(KEY_CUR)||'EUR'; }catch(e){}
+    try{ festExcel=JSON.parse(localStorage.getItem(KEY_FE)||'{}')||{}; }catch(e){ festExcel={}; }
+    try{ holCache=JSON.parse(localStorage.getItem(KEY_HOL)||'{}')||{}; }catch(e){ holCache={}; }
     // migrar datos de la versión anterior
     bodas=bodas.filter(b=>b&&b.fecha).map(b=>{
       const n={...b};
@@ -364,7 +387,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     });
   }
   function save(){
-    try{ localStorage.setItem(KEY,JSON.stringify(bodas)); localStorage.setItem(KEY_Y,JSON.stringify(extraYears)); }
+    try{ localStorage.setItem(KEY,JSON.stringify(bodas)); localStorage.setItem(KEY_Y,JSON.stringify(extraYears)); localStorage.setItem(KEY_FE,JSON.stringify(festExcel)); }
     catch(e){ toast('No se pudo guardar en el navegador. Haz una copia de seguridad.'); }
   }
 
@@ -389,6 +412,54 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     }).join('<br>');
   }
 
+  // ---------- festivos (Navarra) ----------
+  const REGION='ES-NC'; // Comunidad Foral de Navarra
+  const holTry={};
+  const iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+  const addDays=(s,n)=>{ const d=parseDate(s); d.setDate(d.getDate()+n); return iso(d); };
+  function easter(y){
+    const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),
+      h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),n=h+l-7*m+114;
+    return new Date(y,Math.floor(n/31)-1,n%31+1);
+  }
+  // Calendario de reserva (sin conexión): nacionales y los habituales de Navarra
+  function calcHolidays(y){
+    const e=iso(easter(y)), f=(m,d,n)=>[`${y}-${pad(m)}-${pad(d)}`,n];
+    return [f(1,1,'Año Nuevo'),f(1,6,'Epifanía del Señor'),[addDays(e,-3),'Jueves Santo'],[addDays(e,-2),'Viernes Santo'],[addDays(e,1),'Lunes de Pascua'],
+      f(5,1,'Fiesta del Trabajo'),f(8,15,'Asunción de la Virgen'),f(10,12,'Fiesta Nacional de España'),f(11,1,'Todos los Santos'),
+      f(12,3,'San Francisco Javier'),f(12,6,'Día de la Constitución'),f(12,8,'Inmaculada Concepción'),f(12,25,'Navidad')];
+  }
+  function holidays(y){
+    if(!holCache[y]) return calcHolidays(+y);
+    // el calendario descargado a veces no trae el Día de Navarra, que es festivo todos los años
+    const l=holCache[y].list, d3=`${y}-12-03`;
+    return l.some(x=>x[0]===d3)?l:[...l,[d3,'Día de Navarra (San Francisco Javier)']];
+  }
+  // Descarga el calendario oficial del año (nacionales + Navarra) y lo guarda; se refresca cada 30 días
+  function ensureHolidays(y){
+    const c=holCache[y];
+    if(c&&Date.now()-c.t<30*864e5) return;
+    if(holTry[y]&&Date.now()-holTry[y]<10*60e3) return;
+    holTry[y]=Date.now();
+    fetch(`https://date.nager.at/api/v3/PublicHolidays/${y}/ES`).then(r=>{ if(!r.ok) throw 0; return r.json(); }).then(arr=>{
+      const list=arr.filter(h=>h.global||(h.counties||[]).includes(REGION)).map(h=>[h.date,h.localName]);
+      if(!list.length) throw 0;
+      holCache[y]={t:Date.now(),list};
+      try{ localStorage.setItem(KEY_HOL,JSON.stringify(holCache)); }catch(e){}
+      renderAll();
+    }).catch(()=>{});
+  }
+  // Cada festivo va con su fin de semana: lunes y martes con el anterior (puente); de miércoles a domingo con el de esa semana
+  function satFor(f){ return addDays(f,[-1,-2,-3,3,2,1,0][parseDate(f).getDay()]); }
+  function holidaysBySat(year){
+    const map={}, add=(f,n)=>{ const s=satFor(f); const l=map[s]=map[s]||[]; if(!l.some(x=>x.f===f)) l.push({f,n}); };
+    [+year-1,+year,+year+1].forEach(y=>holidays(y).forEach(([f,n])=>add(f,n)));
+    Object.entries(festExcel).forEach(([f,n])=>{ if(n==='Festivo'&&map[satFor(f)]) return; add(f,n); });
+    return map;
+  }
+  const festText=l=>[...l].sort((a,b)=>a.f.localeCompare(b.f)).map(x=>{ const d=parseDate(x.f); return `${x.n} (${d.toLocaleDateString('es-ES',{weekday:'short'}).replace('.','')} ${d.getDate()})`; }).join(', ');
+  function weekendSat(f){ const wd=parseDate(f).getDay(); return wd===6?f:wd===0?addDays(f,-1):wd===5?addDays(f,1):null; }
+
   // ---------- años ----------
   function years(){ return [...new Set([...bodas.map(b=>b.fecha.slice(0,4)),...extraYears])].sort(); }
   function defaultYear(){
@@ -409,14 +480,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   function renderTabs(){
     const ys=years();
     $('tabs').innerHTML=ys.map(y=>{
-      const n=bodas.filter(b=>b.fecha.startsWith(y)&&b.estado!=='cancelada').length;
+      const n=bodas.filter(b=>b.fecha.startsWith(y)&&isBoda(b)).length;
       return `<button class="tab" role="tab" data-y="${y}" aria-selected="${y===selYear}"><span class="y">${y}</span><span class="c">${n} ${n===1?'boda':'bodas'}</span></button>`;
     }).join('')+`<button class="tab add" id="addYear" title="Añadir un año">+ Año</button>`;
     const act=$('tabs').querySelector('[aria-selected="true"]'); if(act) act.scrollIntoView({block:'nearest',inline:'nearest'});
   }
   function renderStats(){
-    const set=bodas.filter(b=>b.fecha.startsWith(selYear));
-    const activas=set.filter(b=>b.estado!=='cancelada');
+    const set=bodas.filter(b=>b.fecha.startsWith(selYear)&&b.estado!=='personal');
+    const activas=set.filter(isBoda);
     const total=activas.reduce((a,b)=>a+num(b.total),0);
     const cobrado=activas.reduce((a,b)=>a+num(b.pagado),0);
     const hrs=activas.reduce((a,b)=>a+num(b.horas),0);
@@ -436,7 +507,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     const c={}; bodas.filter(b=>b.fecha.startsWith(selYear)).forEach(b=>c[b.estado]=(c[b.estado]||0)+1);
     $('chips').innerHTML=Object.entries(ESTADOS).map(([k,v])=>
       `<button class="chip" data-st="${k}" aria-pressed="${statusFilter.has(k)}"><span class="sw sw-${k}"></span>${v} (${c[k]||0})</button>`).join('')
-      +`<button class="chip" data-st="libre" aria-pressed="${statusFilter.has('libre')}"><span class="sw sw-libre"></span>Sábados libres (${freeSaturdays(selYear).length})</button>`;
+      +`<button class="chip" data-st="libre" aria-pressed="${statusFilter.has('libre')}"><span class="sw sw-libre"></span>Sábados libres (${freeSaturdays(selYear).length})</button>`
+      +`<span class="chip legend"><span class="sw sw-fest"></span>Finde con festivo</span>`;
   }
   function saturdays(year,m){
     const out=[], d=new Date(+year,m,1);
@@ -445,7 +517,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     return out;
   }
   function freeSaturdays(year){
-    const act=new Set(bodas.filter(b=>b.estado!=='cancelada').map(b=>b.fecha));
+    const act=new Set(bodas.filter(ocupa).map(b=>b.fecha));
     const all=[]; for(let m=0;m<12;m++) all.push(...saturdays(year,m));
     return all.filter(s=>!act.has(s));
   }
@@ -455,12 +527,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       box.innerHTML=`<div class="empty"><p>Todavía no hay ningún año en el archivador.</p><button class="btn primary" id="emptyNew">+ Añadir la primera boda</button><p style="margin-top:14px">¿Ya las tienes en Excel? Pulsa <strong>Importar Excel o CSV</strong> abajo.</p></div>`;
       $('emptyNew').onclick=()=>openForm(); return;
     }
-    const q=$('q').value.trim().toLowerCase(), hoy=todayStr();
+    const q=$('q').value.trim().toLowerCase(), hoy=todayStr(), hol=holidaysBySat(selYear);
     const wedFilter=[...statusFilter].filter(s=>s!=='libre');
     const filtering=!!q||statusFilter.size>0;
     const showFree=!q&&(statusFilter.size===0||statusFilter.has('libre'));
     const all=bodas.filter(b=>b.fecha.startsWith(selYear));
-    const actByDate={}; all.forEach(b=>{ if(b.estado!=='cancelada') actByDate[b.fecha]=(actByDate[b.fecha]||0)+1; });
+    const actByDate={}; all.forEach(b=>{ if(ocupa(b)) actByDate[b.fecha]=(actByDate[b.fecha]||0)+1; });
     const items=all.filter(b=>{
       if(statusFilter.size&&!wedFilter.includes(b.estado)) return false;
       if(q&&![b.novios,b.ubicacion,b.contacto,b.notas].join(' ').toLowerCase().includes(q)) return false;
@@ -481,8 +553,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       if(showFree) free.forEach(s=>rows.push({fecha:s,libre:true}));
       rows.sort((a,b)=>a.fecha.localeCompare(b.fecha)||(a.libre?1:0)-(b.libre?1:0)||(a.b&&b.b?a.b.novios.localeCompare(b.b.novios):0));
       if(!rows.length&&filtering) continue;
-      const act=list.filter(b=>b.estado!=='cancelada').length;
+      const act=list.filter(isBoda).length, per=list.filter(b=>b.estado==='personal').length;
       const info=[]; if(act) info.push(`${act} ${act===1?'boda':'bodas'}`);
+      if(per) info.push(`${per} ${per===1?'evento personal':'eventos personales'}`);
       info.push(`${free.length} de ${sats.length} sábados libres`);
       html+=`<section class="mes"><h2>${cap(MESES[m])}<small>${info.join(', ')}</small></h2>`;
       if(!rows.length){ html+=`<p class="vacio">Sin bodas</p></section>`; continue; }
@@ -491,19 +564,20 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         const d=parseDate(r.fecha), wd=d.toLocaleDateString('es-ES',{weekday:'short'}).replace('.','');
         const past=r.fecha<hoy;
         if(r.libre){
-          html+=`<tr class="fila libre${past?' pasado':''}" data-fecha="${r.fecha}" tabindex="0" title="${past?'Sábado pasado sin boda':'Apuntar una boda este sábado'}">
+          const fh=hol[r.fecha];
+          html+=`<tr class="fila libre${past?' pasado':''}${fh?' fest':''}" data-fecha="${r.fecha}" tabindex="0" title="${past?'Sábado pasado sin boda':'Apuntar una boda este sábado'}">
             <td class="dia"><b>${d.getDate()}</b>${wd}</td>
-            <td class="c-nov" colspan="7"><span class="libre-txt">Libre</span>${past?'':'<span class="add-hint">+ Apuntar boda</span>'}</td>
+            <td class="c-nov" colspan="7"><span class="libre-txt">Libre</span>${fh?`<span class="fest-txt">Festivo: ${esc(festText(fh))}</span>`:''}${past?'':'<span class="add-hint">+ Apuntar boda</span>'}</td>
             <td class="c-est"></td></tr>`;
           return;
         }
-        const b=r.b, total=num(b.total), pend=Math.max(total-num(b.pagado),0);
+        const b=r.b, total=num(b.total), pend=Math.max(total-num(b.pagado),0), ws=weekendSat(r.fecha), fh=ws&&hol[ws];
         html+=`<tr class="fila r-${b.estado}${past?' pasado':''}" data-id="${b.id}" tabindex="0">
           <td class="dia"><b>${d.getDate()}</b>${wd}</td>
-          <td class="c-nov"><span class="nov">${esc(b.novios)||'Sin nombre'}</span>${actByDate[b.fecha]>1&&b.estado!=='cancelada'?`<span class="clash">${actByDate[b.fecha]} bodas este día</span>`:''}</td>
+          <td class="c-nov"><span class="nov">${esc(b.novios)||'Sin nombre'}</span>${actByDate[b.fecha]>1&&ocupa(b)?`<span class="clash">${actByDate[b.fecha]} eventos este día</span>`:''}${fh?`<span class="fest-tag">Festivo: ${esc(festText(fh))}</span>`:''}</td>
           <td class="num" data-l="Horas">${fmtH(b.horas)}</td>
           <td class="num" data-l="Importe">${total?money(total):''}</td>
-          <td class="num" data-l="Pendiente">${b.estado==='cancelada'||!total?'':money(pend)}</td>
+          <td class="num" data-l="Pendiente">${!isBoda(b)||!total?'':money(pend)}</td>
           <td data-l="Ubicación">${esc(b.ubicacion)}</td>
           <td data-l="Contacto">${contactLinks(b.contacto)}</td>
           <td class="notas" data-l="Observaciones">${esc(b.notas)}</td>
@@ -519,10 +593,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   function renderAll(){
     const ys=years();
     if(!ys.includes(selYear)) selYear=defaultYear();
+    if(selYear){ ensureHolidays(selYear); ensureHolidays(String(+selYear+1)); }
     renderTabs();
     if(selYear){ renderStats(); renderChips(); } else { $('stats').innerHTML=''; $('chips').innerHTML=''; }
     renderMonths();
-    const n=bodas.filter(b=>b.fecha>=todayStr()&&b.estado!=='cancelada').length;
+    const n=bodas.filter(b=>b.fecha>=todayStr()&&isBoda(b)).length;
     $('subline').textContent=n?`Tienes ${n} ${n===1?'boda próxima':'bodas próximas'}.`:'Tus fechas, cobros y contactos en un solo sitio.';
   }
 
@@ -534,13 +609,23 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     if(total) parts.push(`Falta por cobrar ${money(Math.max(total-pag,0))}`);
     if(h&&total) parts.push(`${money(total/h)} por hora`);
     $('calc').textContent=parts.join('. ');
-    const f=$('fFecha').value, others=bodas.filter(b=>b.fecha===f&&b.id!==editId&&b.estado!=='cancelada');
+    const f=$('fFecha').value, others=bodas.filter(b=>b.fecha===f&&b.id!==editId&&ocupa(b));
     $('clashWarn').hidden=!others.length;
-    if(others.length) $('clashWarn').textContent=`Ojo: ese día ya tienes la boda de ${others.map(o=>o.novios).join(', ')}.`;
+    if(others.length) $('clashWarn').textContent=`Ojo: ese día ya tienes ${others.map(o=>(o.estado==='personal'?'el evento personal ':'la boda de ')+o.novios).join(', ')}.`;
+  }
+  // En eventos personales: "Título" en vez de "Novios" y sin horas ni importes
+  function syncTipo(){
+    const p=getEstado()==='personal';
+    $('lblNovios').textContent=p?'Título':'Novios';
+    $('fNovios').placeholder=p?'Cumpleaños, viaje, médico…':'Laura y Javier';
+    ['fHoras','fTotal','fPagado'].forEach(id=>$(id).closest('.f').hidden=p);
+    $('fPagado').closest('.f').nextElementSibling.hidden=p;
+    $('calc').hidden=p;
+    $('btnSave').textContent=p?'Guardar evento':'Guardar boda';
+    $('dlgTitle').textContent=p?(editId?'Editar evento personal':'Nuevo evento personal'):(editId?'Editar boda':'Nueva boda');
   }
   function openForm(b,year,fecha){
     editId=b?b.id:null;
-    $('dlgTitle').textContent=b?'Editar boda':'Nueva boda';
     $('fFecha').value=b?.fecha||fecha||'';
     if(!b&&year){ $('fFecha').min=`${year}-01-01`; $('fFecha').max=`${year}-12-31`; } else { $('fFecha').min=''; $('fFecha').max=''; }
     $('fNovios').value=b?.novios||'';
@@ -550,50 +635,62 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     $('fUbic').value=b?.ubicacion||'';
     $('fCont').value=b?.contacto||'';
     $('fNotas').value=b?.notas||'';
-    setEstado(b?.estado||'sin');
+    setEstado(b?.estado||'sin'); syncTipo();
     $('btnDel').hidden=!b;
     updateCalc(); $('dlg').showModal(); (fecha?$('fNovios'):$('fFecha')).focus();
   }
   const closeForm=()=>$('dlg').close();
   function saveForm(){
     const fecha=$('fFecha').value, novios=$('fNovios').value.trim();
-    if(!fecha){ $('fFecha').focus(); toast('Pon la fecha de la boda'); return; }
-    if(!novios){ $('fNovios').focus(); toast('Escribe el nombre de los novios'); return; }
+    const p=getEstado()==='personal';
+    if(!fecha){ $('fFecha').focus(); toast(p?'Pon la fecha del evento':'Pon la fecha de la boda'); return; }
+    if(!novios){ $('fNovios').focus(); toast(p?'Escribe un título para el evento':'Escribe el nombre de los novios'); return; }
     const hv=$('fHoras').value;
-    const data={fecha,novios,horas:hv===''?'':num(hv),total:num($('fTotal').value),pagado:num($('fPagado').value),
+    const data={fecha,novios,horas:p||hv===''?'':num(hv),total:p?0:num($('fTotal').value),pagado:p?0:num($('fPagado').value),
       estado:getEstado(),ubicacion:$('fUbic').value.trim(),contacto:$('fCont').value.trim(),notas:$('fNotas').value.trim()};
-    if(editId){ const i=bodas.findIndex(b=>b.id===editId); bodas[i]={...bodas[i],...data}; toast('Boda actualizada'); }
-    else { bodas.push({id:uid(),...data}); toast('Boda guardada'); }
+    if(editId){ const i=bodas.findIndex(b=>b.id===editId); bodas[i]={...bodas[i],...data}; toast(p?'Evento actualizado':'Boda actualizada'); }
+    else { bodas.push({id:uid(),...data}); toast(p?'Evento guardado':'Boda guardada'); }
     selYear=fecha.slice(0,4); save(); closeForm(); renderAll();
   }
   function deleteCurrent(){
     const b=bodas.find(x=>x.id===editId); if(!b) return;
-    if(!confirm(`¿Eliminar la boda de ${b.novios} (${b.fecha})? Si solo se ha cancelado, mejor márcala como Cancelada.`)) return;
+    if(!confirm(b.estado==='personal'?`¿Eliminar el evento "${b.novios}" (${b.fecha})?`:`¿Eliminar la boda de ${b.novios} (${b.fecha})? Si solo se ha cancelado, mejor márcala como Cancelada.`)) return;
     const y=b.fecha.slice(0,4);
     bodas=bodas.filter(x=>x.id!==editId);
     if(!bodas.some(x=>x.fecha.startsWith(y))&&!extraYears.includes(y)) extraYears.push(y);
-    save(); closeForm(); renderAll(); toast('Boda eliminada');
+    save(); closeForm(); renderAll(); toast(b.estado==='personal'?'Evento eliminado':'Boda eliminada');
   }
 
   // ---------- importar ----------
   const MES_IDX={ene:1,feb:2,mar:3,abr:4,may:5,jun:6,jul:7,ago:8,sep:9,set:9,oct:10,nov:11,dic:12};
-  function toDate(cell,sheetYear){
-    if(cell==null) return '';
-    let v=cell.v;
+  let date1904=false; // Excel de Mac: las fechas cuentan desde 1904
+  // fecha real del calendario o '' si no existe (p. ej. 31/02)
+  function ymd(y,m,d){
+    y=+y; m=+m; d=+d; if(!y||m<1||m>12||d<1||d>31) return '';
+    const t=new Date(y,m-1,d); return t.getMonth()===m-1?`${y}-${pad(m)}-${pad(d)}`:'';
+  }
+  // Lee la fecha tal cual viene (cualquier d\u00eda de la semana vale).
+  // olds: la fecha que sal\u00eda antes con un Excel de Mac, para mover lo que ya estaba importado.
+  function pickDate(cell){
+    if(cell==null) return {fecha:''};
+    const v=cell.v;
     if(typeof v==='number'){
-      if(v>20000&&v<80000){ const p=XLSX.SSF.parse_date_code(v); if(p&&p.y) return `${p.y}-${pad(p.m)}-${pad(p.d)}`; }
-      return '';
+      if(!(v>20000&&v<80000)) return {fecha:''};
+      const p=XLSX.SSF.parse_date_code(v,{date1904}), q=XLSX.SSF.parse_date_code(v);
+      const fecha=p&&p.y?ymd(p.y,p.m,p.d):'', old=q&&q.y?ymd(q.y,q.m,q.d):'';
+      return {fecha, olds:old&&old!==fecha?[old]:[]};
     }
-    let s=String(cell.w??v??'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-    if(!s) return '';
-    let m;
-    if(m=s.match(/(\d{4})-(\d{1,2})-(\d{1,2})/)) return `${m[1]}-${pad(m[2])}-${pad(m[3])}`;
-    const fixY=y=>y?(y.length===2?'20'+y:y):sheetYear;
-    if(m=s.match(/(\d{1,2})[\/.\-](\d{1,2})(?:[\/.\-](\d{2,4}))?/)){ const y=fixY(m[3]); if(y&&+m[2]<=12&&+m[1]<=31) return `${y}-${pad(m[2])}-${pad(m[1])}`; }
-    if(m=s.match(/(\d{1,2})\s*(?:de\s+)?([a-z]{3,})\.?(?:\s*(?:de|del)?\s*(\d{2,4}))?/)){
-      const mo=MES_IDX[m[2].slice(0,3)]; const y=fixY(m[3]); if(mo&&y) return `${y}-${pad(mo)}-${pad(m[1])}`;
-    }
-    return '';
+    const s=String(cell.w??v??'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    if(!s) return {fecha:''};
+    let m, y, mo, d;
+    if(m=s.match(/(\d{4})-(\d{1,2})-(\d{1,2})/)) [y,mo,d]=[m[1],m[2],m[3]];
+    else if(m=s.match(/(\d{1,2})[\/.\-](\d{1,2})(?:[\/.\-](\d{2,4}))?/)) [y,mo,d]=[m[3],m[2],m[1]];
+    else if((m=s.match(/(\d{1,2})\s*(?:de\s+)?([a-z]{3,})\.?(?:\s*(?:de|del)?\s*(\d{2,4}))?/))&&MES_IDX[m[2].slice(0,3)]) [y,mo,d]=[m[3],MES_IDX[m[2].slice(0,3)],m[1]];
+    else return {fecha:''};
+    // sin a\u00f1o: lo decide processRows seg\u00fan la hoja y las filas anteriores
+    if(!y) return {fecha:'', yearless:true, mo:+mo, d:+d};
+    if(y.length===2) y='20'+y;
+    return {fecha:ymd(y,mo,d), olds:[]};
   }
   function toHours(cell){
     if(cell==null) return '';
@@ -618,6 +715,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   const txt=c=>c==null?'':String(c.w??c.v??'').trim();
   function textEstado(s){
     s=s.toLowerCase();
+    if(/personal/.test(s)) return 'personal';
     if(/cancel|anulad/.test(s)) return 'cancelada';
     if(/sin pag|no pag|pendiente/.test(s)) return 'sin';
     if(/complet|pagad/.test(s)) return 'pagado';
@@ -626,37 +724,111 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   }
   function fillEstado(cell){
     const s=cell&&cell.s; if(!s||s.patternType==='none') return '';
-    const c=(s.fgColor&&s.fgColor.rgb)||(s.bgColor&&s.bgColor.rgb); if(!c) return '';
+    const c=(s.fgColor&&s.fgColor.rgb)||(s.bgColor&&s.bgColor.rgb);
+    // colores de tema sin RGB: en el tema de Office, los índices 4 y 8 son azules
+    if(!c){ const t=s.fgColor&&s.fgColor.theme; return t===4||t===8?'personal':''; }
     const h=c.slice(-6); const r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);
     if([r,g,b].some(isNaN)) return '';
     if(r>235&&g>235&&b>235) return '';
+    // color carne (melocotón claro, p. ej. FCE4D6 o F8CBAD): festivo / finde con festivo
+    if(r>=240&&g>=175&&g<=235&&b>=150&&r-g>=15&&g-b>=8&&g-b<=50) return 'festivo';
+    if(b>r+30&&b>=g-10) return 'personal';
     if(r>180&&g<140&&b<140) return 'cancelada';
     if(g>r+20&&g>b+10) return 'pagado';
     if(r>180&&g>130&&b<150) return 'reserva';
     return '';
   }
-  // Orden de columnas: fecha, novios, horas, importe, ubicación, contacto, observaciones (+ cobrado/estado opcionales)
+  // Títulos de columna reconocidos (en minúsculas y sin acentos). El orden importa: "Importe pendiente" es pendiente, no importe.
+  const COLS=[
+    ['fecha',/^(fecha|dia\b|date)/],
+    ['pendiente',/pendiente|falta|resta/],
+    ['pagado',/cobrad|pagad|senal|adelant|anticip|abonad|a cuenta|entrega/],
+    ['total',/importe|precio|total|presupuesto|tarifa|coste|cuota|euros/],
+    ['horas',/^n?.?\s*horas|duracion/],
+    ['estado',/estado|situacion/],
+    ['contacto',/contacto|telefono|tlf|telf|movil|e-?mail|correo/],
+    ['ubicacion',/ubicacion|lugar|sitio|finca|direccion|localidad|ciudad|sala|restaurante|iglesia|banquete/],
+    ['notas',/observ|nota|coment|detalle/],
+    ['novios',/novio|nombre|cliente|pareja|evento|titulo|boda/],
+  ];
+  const COL_LBL={fecha:'Fecha',novios:'Novios',horas:'Horas',total:'Importe',pagado:'Cobrado',ubicacion:'Ubicación',contacto:'Contacto',notas:'Observaciones',estado:'Estado'};
+  const POS_COLS=['fecha','novios','horas','total','ubicacion','contacto','notas','pagado','estado'];
+  const norm=s=>String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
+  function colKey(title){ const t=norm(title); const f=COLS.find(([,re])=>re.test(t)); return f?f[0]:null; }
+  // Fila de títulos: una de las primeras filas con "Fecha" y al menos otro título reconocido
+  function findHeader(rows){
+    for(let i=0;i<Math.min(rows.length,20);i++){
+      const cols={}; let n=0, hasFecha=false;
+      rows[i].forEach((c,j)=>{
+        const t=txt(c); if(!t||/^[\d\s.,:\/\-]+$/.test(t)) return;
+        const k=colKey(t); cols[j]={key:k||'extra',title:t};
+        if(k){ n++; if(k==='fecha') hasFecha=true; }
+      });
+      if(hasFecha&&n>=2) return {row:i,cols};
+    }
+    return null;
+  }
+  // Solo se leen las columnas con título. Sin títulos: fecha, novios, horas, importe, ubicación, contacto, observaciones, cobrado, estado.
   function processRows(rows,sheetYear,res){
-    rows.forEach(r=>{
-      const fecha=toDate(r[0],sheetYear);
-      if(!fecha){ if(r.some(c=>txt(c))) res.skipped++; return; }
-      const novios=txt(r[1]);
-      if(!novios&&!txt(r[3])&&!txt(r[4])){ res.skipped++; return; }
-      const total=toMoney(r[3]);
-      let pagado=0, est='';
-      for(let i=7;i<r.length;i++){
-        const c=r[i]; if(c==null) continue;
-        if(typeof c.v==='number'&&!pagado) pagado=c.v;
-        else { const e=textEstado(txt(c)); if(e) est=e; else if(!pagado&&/\d/.test(txt(c))) pagado=toMoney(c); }
+    const h=findHeader(rows); let map, start=0;
+    if(h){ map=h.cols; start=h.row+1; res.lastHeader=map; }
+    else if(res.lastHeader) map=res.lastHeader; // misma estructura que la hoja anterior
+    else { map={}; POS_COLS.forEach((k,j)=>map[j]={key:k,title:COL_LBL[k]}); res.positional=true; }
+    const idx={}; Object.entries(map).forEach(([j,c])=>{ (idx[c.key]=idx[c.key]||[]).push(+j); if(COL_LBL[c.key]) res.cols.add(COL_LBL[c.key]); else if(c.key==='extra') res.extra.add(c.title); });
+    if(!idx.fecha) return;
+    const fechaCol=idx.fecha[0], used=Object.keys(map).map(Number);
+    let runY=0, lastM=0;
+    for(let i=start;i<rows.length;i++){
+      const r=rows[i];
+      const cells=k=>(idx[k]||[]).map(j=>r[j]).filter(c=>txt(c));
+      const join=(k,sep)=>cells(k).map(txt).join(sep);
+      const dc=r[fechaCol];
+      if(colKey(txt(dc))==='fecha') continue; // títulos repetidos (p. ej. uno por mes)
+      let pd=pickDate(dc);
+      if(pd.yearless){
+        // sin año: el de la fila anterior (si se pasa de diciembre a enero, el siguiente) o el del nombre de la hoja
+        let y=runY||+sheetYear;
+        if(runY&&lastM-pd.mo>=6) y=runY+1;
+        const olds=sheetYear&&+sheetYear!==y?[ymd(sheetYear,pd.mo,pd.d)].filter(Boolean):[];
+        pd=y?{fecha:ymd(y,pd.mo,pd.d),olds}:{fecha:''};
       }
-      if(!est){ for(const c of r){ const e=fillEstado(c); if(e){ est=e; break; } } }
+      const fecha=pd.fecha;
+      if(!fecha){ if(used.some(j=>txt(r[j]))) res.skipped++; continue; }
+      runY=+fecha.slice(0,4); lastM=+fecha.slice(5,7);
+      const fills=used.map(j=>fillEstado(r[j]));
+      const personal=fills.includes('personal'), festivo=fills.includes('festivo');
+      let novios=join('novios',' ');
+      let notas=[join('notas','\n'),...(idx.extra||[]).filter(j=>txt(r[j])).map(j=>`${map[j].title}: ${txt(r[j])}`)].filter(Boolean).join('\n');
+      const ubicacion=join('ubicacion',' · '), contacto=join('contacto',' / ');
+      const total=toMoney(cells('total')[0]);
+      if(festivo){
+        if(!festExcel[fecha]||festExcel[fecha]==='Festivo') festExcel[fecha]=(!total&&!contacto&&(novios||join('notas',' ')))||'Festivo';
+        res.fest++;
+        if(!total&&!contacto) continue; // fila color carne sin datos de boda: solo marca el festivo
+      }
+      if(!novios&&!total&&!ubicacion&&!personal){ res.skipped++; continue; }
+      if(personal&&!novios){ novios=notas||ubicacion||'Evento personal'; if(novios===notas) notas=''; }
+      let pagado=toMoney(cells('pagado')[0]), est=personal?'personal':'';
+      if(!est) est=textEstado(join('estado',' '));
+      if(!est) est=fills.find(f=>f&&f!=='festivo')||'';
       if(!est) est=autoEstado(total,pagado);
       if(est==='pagado'&&!pagado) pagado=total;
-      if(bodas.some(x=>x.fecha===fecha&&x.novios.toLowerCase()===novios.toLowerCase())){ res.dup++; return; }
-      bodas.push({id:uid(),fecha,novios,horas:toHours(r[2]),total,pagado,estado:est,
-        ubicacion:txt(r[4]),contacto:txt(r[5]),notas:txt(r[6])});
-      res.added++; res.years.add(fecha.slice(0,4));
-    });
+      const same=x=>x.novios.toLowerCase()===novios.toLowerCase();
+      let prev=bodas.find(x=>x.fecha===fecha&&same(x));
+      if(!prev){
+        // importada antes con la fecha mal: se mueve a la fecha correcta
+        const old=bodas.find(x=>same(x)&&pd.olds.includes(x.fecha));
+        if(old){ old.fecha=fecha; if(est==='personal') old.estado='personal'; res.moved++; res.years.add(fecha.slice(0,4)); continue; }
+      }
+      if(prev){
+        // ya existía: si en el Excel está en azul, pasa a evento personal
+        if(est==='personal'&&prev.estado!=='personal'){ prev.estado='personal'; res.personal++; res.years.add(fecha.slice(0,4)); }
+        else res.dup++;
+        continue;
+      }
+      bodas.push({id:uid(),fecha,novios,horas:toHours(cells('horas')[0]),total,pagado,estado:est,ubicacion,contacto,notas});
+      res.added++; if(est==='personal') res.personal++; res.years.add(fecha.slice(0,4));
+    }
   }
   function parseCsv(text){
     text=text.replace(/^\uFEFF/,'');
@@ -675,7 +847,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     return rows.map(r=>r.map(v=>v===''?null:{v,w:v}));
   }
   function importFile(file){
-    const res={added:0,skipped:0,dup:0,years:new Set(),sheets:0};
+    const res={added:0,skipped:0,dup:0,personal:0,moved:0,fest:0,years:new Set(),sheets:0,cols:new Set(),extra:new Set(),lastHeader:null,positional:false};
+    date1904=false;
     const isCsv=/\.csv$/i.test(file.name);
     const rd=new FileReader();
     rd.onload=()=>{
@@ -685,6 +858,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           processRows(parseCsv(rd.result),y,res); res.sheets=1;
         } else {
           const wb=XLSX.read(new Uint8Array(rd.result),{type:'array',cellStyles:true,cellDates:false});
+          date1904=!!(wb.Workbook&&wb.Workbook.WBProps&&wb.Workbook.WBProps.date1904);
           wb.SheetNames.forEach(name=>{
             const ws=wb.Sheets[name]; if(!ws||!ws['!ref']) return;
             const R=XLSX.utils.decode_range(ws['!ref']); const rows=[];
@@ -703,9 +877,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         let msg=`${res.added} bodas importadas`;
         if(!isCsv) msg+=` de ${res.sheets} ${res.sheets===1?'hoja':'hojas'}`;
         if(ys.length) msg+=` (${ys.join(', ')})`;
+        if(res.personal) msg+=`, ${res.personal} como eventos personales (azul)`;
+        if(res.fest) msg+=`, ${res.fest} ${res.fest===1?'festivo':'festivos'} (color carne)`;
+        if(res.moved) msg+=`. ${res.moved} ${res.moved===1?'ya importada movida':'ya importadas movidas'} a su fecha correcta`;
         if(res.dup) msg+=`. ${res.dup} ya estaban`;
-        if(res.skipped) msg+=`. ${res.skipped} ${res.skipped===1?'fila':'filas'} sin fecha reconocible (encabezados o filas vacías)`;
-        toast(msg,6000);
+        if(res.skipped) msg+=`. ${res.skipped} ${res.skipped===1?'fila':'filas'} sin fecha reconocible`;
+        msg+=res.positional?'. No encontré títulos de columna: leídas por posición':`. Columnas leídas: ${[...res.cols].join(', ')}`;
+        if(res.extra.size) msg+=` (y a observaciones: ${[...res.extra].join(', ')})`;
+        toast(msg,12000);
       }catch(e){ console.error(e); toast('No se pudo leer ese archivo. Prueba a guardarlo como .xlsx o .csv'); }
     };
     isCsv?rd.readAsText(file,'utf-8'):rd.readAsArrayBuffer(file);
@@ -732,7 +911,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click();
     setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);
   }
-  function backup(){ download(`bodas-copia-${todayStr()}.json`,JSON.stringify({version:2,moneda:currency,anios:extraYears,bodas},null,2),'application/json'); toast('Copia descargada'); }
+  function backup(){ download(`bodas-copia-${todayStr()}.json`,JSON.stringify({version:3,moneda:currency,anios:extraYears,festivosExcel:festExcel,bodas},null,2),'application/json'); toast('Copia descargada'); }
   function restore(text){
     try{
       const d=JSON.parse(text), arr=Array.isArray(d)?d:d.bodas;
@@ -741,6 +920,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       localStorage.setItem(KEY,JSON.stringify(arr));
       if(Array.isArray(d.anios)) localStorage.setItem(KEY_Y,JSON.stringify(d.anios));
       if(d.moneda) localStorage.setItem(KEY_CUR,d.moneda);
+      if(d.festivosExcel&&typeof d.festivosExcel==='object') localStorage.setItem(KEY_FE,JSON.stringify(d.festivosExcel));
       load(); $('currency').value=currency; selYear=null; save(); renderAll(); toast('Copia restaurada');
     }catch(e){ toast('Ese archivo no es una copia válida'); }
   }
@@ -752,7 +932,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   $('form').addEventListener('submit',e=>{e.preventDefault();saveForm();});
   $('form').addEventListener('keydown',e=>{ if(e.key==='Enter'&&e.target.tagName==='INPUT'&&e.target.type!=='radio'){e.preventDefault();saveForm();} });
   ['fHoras','fTotal','fFecha'].forEach(id=>$(id).addEventListener('input',updateCalc));
-  const autoSet=()=>{ if(getEstado()!=='cancelada'&&$('fPagado').value!=='') setEstado(autoEstado(num($('fTotal').value),num($('fPagado').value))); updateCalc(); };
+  document.querySelectorAll('input[name=estado]').forEach(r=>r.addEventListener('change',syncTipo));
+  const autoSet=()=>{ if(getEstado()!=='cancelada'&&getEstado()!=='personal'&&$('fPagado').value!=='') setEstado(autoEstado(num($('fTotal').value),num($('fPagado').value))); updateCalc(); };
   $('fPagado').addEventListener('input',autoSet); $('fTotal').addEventListener('input',autoSet);
   $('tabs').addEventListener('click',e=>{
     const t=e.target.closest('.tab'); if(!t) return;
@@ -775,7 +956,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   $('months').addEventListener('keydown',e=>{
     if(e.key!=='Enter') return; const tr=e.target.closest('tr.fila'); if(tr) rowAction(tr);
   });
-  $('chips').addEventListener('click',e=>{ const c=e.target.closest('.chip'); if(!c) return; const s=c.dataset.st; statusFilter.has(s)?statusFilter.delete(s):statusFilter.add(s); renderChips(); renderMonths(); });
+  $('chips').addEventListener('click',e=>{ const c=e.target.closest('.chip'); if(!c||!c.dataset.st) return; const s=c.dataset.st; statusFilter.has(s)?statusFilter.delete(s):statusFilter.add(s); renderChips(); renderMonths(); });
   $('q').addEventListener('input',renderMonths);
   $('currency').addEventListener('change',e=>{ currency=e.target.value; try{localStorage.setItem(KEY_CUR,currency);}catch(err){} renderAll(); });
   $('btnImport').onclick=()=>$('fileImp').click();
