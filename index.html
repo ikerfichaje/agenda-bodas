@@ -195,6 +195,17 @@ td a:hover{text-decoration:underline}
 /* semana con varios eventos: sus etiquetas van juntas dentro de un marco oscuro */
 .sem{display:flex;gap:3px;padding:3px;border:2px solid var(--ink);border-radius:11px;background:var(--line);flex:0 0 calc(var(--n)*var(--tgw) + (var(--n) - 1)*var(--gap));min-width:calc(var(--n)*var(--tgmin) + (var(--n) - 1)*var(--gap))}
 .sem .tg{flex:1 1 0;min-width:0}
+.sem-x{flex:0 0 18px;border:0;background:none;padding:0;cursor:pointer;font-size:1.1rem;font-weight:800;color:var(--ink)}
+/* semana plegada: ocupa lo que una etiqueta, con un día de su color por cada evento */
+.semc{flex:0 0 var(--tgw);min-width:var(--tgmin);min-height:40px;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:3px;border:2px solid var(--ink);border-radius:9px;background:var(--line);cursor:pointer;text-align:left}
+.semc.past{opacity:.45}
+.semc .mini{display:flex;justify-content:space-between;gap:4px;border:1px solid var(--sin-b);background:var(--sin);border-radius:5px;padding:0 5px;font-size:.68rem;color:var(--ink);white-space:nowrap}
+.semc .mini b{flex:none}
+.semc .mini i{font-style:normal;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.semc .mini.s-reserva{background:var(--res);border-color:var(--res-b)}
+.semc .mini.s-pagado{background:var(--pag);border-color:var(--pag-b)}
+.semc .mini.s-cancelada{background:var(--can);border-color:var(--can-b)}
+.semc .mini.s-personal{background:var(--per);border-color:var(--per-b)}
 .tg b{display:block;font-size:.78rem;text-transform:lowercase;white-space:nowrap}
 .tg .tl{display:block;width:100%;border:0;background:none!important;padding:0;margin:0;text-align:left;cursor:pointer;font-size:.72rem;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tg .tl.libre{color:var(--muted);font-weight:500}
@@ -246,6 +257,9 @@ td a:hover{text-decoration:underline}
   .srow .m{font-size:.62rem}
   .tags{--gap:3px;--tgw:calc((100% - 12px)/5);--tgmin:44px}
   .tg{min-height:38px;padding:4px 4px;border-radius:7px}
+  .semc{min-height:38px;padding:2px;border-radius:7px}
+  .semc .mini{font-size:.58rem;padding:0 3px;letter-spacing:-.02em}
+  .sem-x{flex-basis:12px}
   .tg .fx{right:3px;bottom:2px}
   .tg b{font-size:.7rem;letter-spacing:-.02em}
   .tg .tl{font-size:.6rem;letter-spacing:-.02em}
@@ -1353,6 +1367,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   // ================= PROPUESTA: secciones, disponibilidad, temporada y cobros =================
   const KEY_SEC='agenda-bodas-seccion';
   let seasonYear=null;
+  const semAbiertas=new Set(); // semanas desplegadas en Disponibilidad (se pliegan con la flecha)
   const largo=f=>parseDate(f).toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   const diaTxt=f=>parseDate(f).toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'}).replace(',','');
   const corto=f=>parseDate(f).toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'}).replace(/\./g,'').replace(',','');
@@ -1575,18 +1590,22 @@ Un saludo!!`
         const lineas=[...(libre?[null]:[]),...(evs.length>1?[evs]:evs)]; // null = "Libre"
         const cls=act.length?'s-'+act[0].estado:(libre?'libre':'s-cancelada');
         const title=[cap(corto(f)),...(libre?['Libre']:[]),...evs.map(b=>`${b.novios} (${ESTADOS[b.estado]})`),h?'Festivo: '+festText(h):''].filter(Boolean).join(' · ');
+        const varios=b=>`${b.length} ${b.every(x=>x.estado!=='personal'&&x.tipo!=='evento')?'bodas':'eventos'}`;
         const linea=b=>!b?`<button type="button" class="tl libre" data-f="${f}">Libre</button>`
-          :Array.isArray(b)?`<button type="button" class="tl ev-${b[0].estado}" data-dia="${f}">${b.length} ${b.every(x=>x.estado!=='personal'&&x.tipo!=='evento')?'bodas':'eventos'}</button>`
+          :Array.isArray(b)?`<button type="button" class="tl ev-${b[0].estado}" data-dia="${f}">${varios(b)}</button>`
           :`<button type="button" class="tl ev-${b.estado}" data-id="${b.id}">${verTipoTxt(b,true)}</button>`;
-        return {f,ev:evs.length>0,html:`<div class="tg ${cls}${lineas.length>1?' multi':''}${f<hoy?' past':''}${f===prox&&libre?' today':''}" data-f="${f}" title="${esc(title)}"><b>${wd(f)} ${+f.slice(8)}</b>${lineas.map(linea).join('')}${h?'<em class="fx">F</em>':''}</div>`};
+        return {f,ev:evs.length>0,cls,tipo:evs.length>1?varios(evs):evs.length?verTipoTxt(evs[0],true):'',html:`<div class="tg ${cls}${lineas.length>1?' multi':''}${f<hoy?' past':''}${f===prox&&libre?' today':''}" data-f="${f}" title="${esc(title)}"><b>${wd(f)} ${+f.slice(8)}</b>${lineas.map(linea).join('')}${h?'<em class="fx">F</em>':''}</div>`};
       });
-      // días con eventos en la misma semana (de lunes a domingo): van juntos dentro de un marco
+      // días con eventos en la misma semana (de lunes a domingo): plegados en una etiqueta pequeña
+      // con un punto de color por día; al pulsarla se despliegan dentro de un marco
       const lunes=f=>addDays(f,-((parseDate(f).getDay()+6)%7));
       let fila='';
       for(let i=0;i<tags.length;){
         let j=i; while(j<tags.length&&lunes(tags[j].f)===lunes(tags[i].f)) j++;
-        const sem=tags.slice(i,j);
-        fila+=sem.filter(t=>t.ev).length>1?`<div class="sem" style="--n:${sem.length}">${sem.map(t=>t.html).join('')}</div>`:sem.map(t=>t.html).join('');
+        const sem=tags.slice(i,j), conEv=sem.filter(t=>t.ev), k=mk+'/'+lunes(sem[0].f);
+        if(conEv.length<2) fila+=sem.map(t=>t.html).join('');
+        else if(semAbiertas.has(k)) fila+=`<div class="sem" style="--n:${sem.length}"><button type="button" class="sem-x" data-sem="${k}" aria-label="Plegar la semana">‹</button>${sem.map(t=>t.html).join('')}</div>`;
+        else fila+=`<button type="button" class="semc${sem.every(t=>t.f<hoy)?' past':''}" data-sem="${k}" title="Ver los días de esta semana">${conEv.map(t=>`<span class="mini ${t.cls}"><b>${wd(t.f)} ${+t.f.slice(8)}</b><i>${t.tipo}</i></span>`).join('')}</button>`;
         i=j;
       }
       html+=`<div class="srow"><span class="m">${MESES[m].slice(0,3)}</span><div class="tags">${fila}</div></div>`;
@@ -1653,6 +1672,8 @@ Un saludo!!`
   // al pulsar una etiqueta: la ficha del evento, o una ficha nueva si el sábado está libre
   // (cada línea de la etiqueta abre lo suyo; pulsar fuera de las líneas abre la primera)
   $('seasonGrid').addEventListener('click',e=>{
+    const s=e.target.closest('.semc,.sem-x');
+    if(s){ const k=s.dataset.sem; semAbiertas.has(k)?semAbiertas.delete(k):semAbiertas.add(k); renderSeason(); return; }
     const t=e.target.closest('.tg'); if(!t) return;
     const l=e.target.closest('.tl')||t.querySelector('.tl'); if(!l) return;
     if(l.dataset.id){ const b=bodas.find(x=>x.id===l.dataset.id); if(b) openVer(b); }
