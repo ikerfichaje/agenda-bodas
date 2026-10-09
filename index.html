@@ -190,8 +190,11 @@ td a:hover{text-decoration:underline}
 /* Temporada: una fila por mes, una etiqueta por sábado libre y por evento; si no cabe, se desliza */
 .srow{display:grid;grid-template-columns:44px minmax(0,1fr);gap:6px;align-items:center;margin-bottom:6px}
 .srow .m{font-size:.74rem;font-weight:800;text-transform:uppercase;color:var(--muted)}
-.tags{display:flex;gap:5px;overflow-x:auto;scrollbar-width:thin;padding-bottom:3px;-webkit-overflow-scrolling:touch}
-.tg{position:relative;flex:0 0 calc((100% - 35px)/8);min-width:78px;border:1px solid var(--lib-b);background:var(--lib);border-radius:8px;padding:4px 7px;min-height:40px;cursor:pointer;text-align:left;overflow:hidden}
+.tags{--gap:5px;--tgw:calc((100% - 35px)/8);--tgmin:78px;display:flex;gap:var(--gap);align-items:center;overflow-x:auto;scrollbar-width:thin;padding-bottom:3px;-webkit-overflow-scrolling:touch}
+.tg{position:relative;flex:0 0 var(--tgw);min-width:var(--tgmin);border:1px solid var(--lib-b);background:var(--lib);border-radius:8px;padding:4px 7px;min-height:40px;cursor:pointer;text-align:left;overflow:hidden}
+/* semana con varios eventos: sus etiquetas van juntas dentro de un marco oscuro */
+.sem{display:flex;gap:3px;padding:3px;border:2px solid var(--ink);border-radius:11px;background:var(--line);flex:0 0 calc(var(--n)*var(--tgw) + (var(--n) - 1)*var(--gap));min-width:calc(var(--n)*var(--tgmin) + (var(--n) - 1)*var(--gap))}
+.sem .tg{flex:1 1 0;min-width:0}
 .tg b{display:block;font-size:.78rem;text-transform:lowercase;white-space:nowrap}
 .tg .tl{display:block;width:100%;border:0;background:none!important;padding:0;margin:0;text-align:left;cursor:pointer;font-size:.72rem;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tg .tl.libre{color:var(--muted);font-weight:500}
@@ -241,8 +244,8 @@ td a:hover{text-decoration:underline}
   .card{padding:14px;border-radius:14px}
   .srow{grid-template-columns:30px minmax(0,1fr);gap:4px}
   .srow .m{font-size:.62rem}
-  .tags{gap:3px}
-  .tg{flex-basis:calc((100% - 12px)/5);min-width:44px;min-height:38px;padding:4px 4px;border-radius:7px}
+  .tags{--gap:3px;--tgw:calc((100% - 12px)/5);--tgmin:44px}
+  .tg{min-height:38px;padding:4px 4px;border-radius:7px}
   .tg .fx{right:3px;bottom:2px}
   .tg b{font-size:.7rem;letter-spacing:-.02em}
   .tg .tl{font-size:.6rem;letter-spacing:-.02em}
@@ -314,6 +317,29 @@ form.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;padding:10px 
 .warn{grid-column:1/-1;color:var(--can-b);font-size:.88rem;font-weight:700;margin:0}
 .dlg-foot{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;padding:16px 22px 22px}
 .dlg-foot .r{display:flex;gap:10px;margin-left:auto}
+.ver{display:grid;grid-template-columns:auto 1fr;gap:10px 16px;padding:10px 22px 4px;margin:0}
+.ver dt{font-size:.85rem;font-weight:600;color:var(--muted)}
+.ver dd{margin:0;white-space:pre-line;overflow-wrap:anywhere}
+.dlg-head .ver-tipo{font-family:var(--serif);font-size:1.3rem;font-weight:600;margin:2px 0 0;color:var(--muted)}
+/* la ficha se pinta del color de su estado */
+#dlgVer{border:2px solid var(--sin-b)}
+#dlgVer.v-reserva{background:var(--res);border-color:var(--res-b)}
+#dlgVer.v-pagado{background:var(--pag);border-color:var(--pag-b)}
+#dlgVer.v-cancelada{background:var(--can);border-color:var(--can-b)}
+#dlgVer.v-personal{background:var(--per);border-color:var(--per-b)}
+/* día con varios eventos: un desplegable por evento, cada uno de su color */
+.ver-dia{display:flex;flex-direction:column;gap:10px;padding:10px 22px 4px}
+.ver-ev{border:2px solid var(--sin-b);background:var(--sin);border-radius:12px}
+.ver-ev.v-reserva{background:var(--res);border-color:var(--res-b)}
+.ver-ev.v-pagado{background:var(--pag);border-color:var(--pag-b)}
+.ver-ev.v-cancelada{background:var(--can);border-color:var(--can-b)}
+.ver-ev.v-personal{background:var(--per);border-color:var(--per-b)}
+.ver-ev summary{padding:11px 14px;cursor:pointer;display:flex;gap:10px;align-items:baseline}
+.ver-ev summary b{font-family:var(--serif);font-size:1.15rem}
+.ver-ev .ver{padding:2px 14px 4px}
+.ver-ev-pie{display:flex;justify-content:flex-end;padding:8px 14px 12px}
+.ver-c{display:block;cursor:pointer;width:fit-content}
+.ver-c+.ver-c{margin-top:4px}
 
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:14px;font-weight:600;font-size:.9rem;opacity:0;transition:opacity .2s;pointer-events:none;z-index:50;max-width:calc(100% - 30px);text-align:center}
 .toast.show{opacity:1}
@@ -465,6 +491,13 @@ form.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;padding:10px 
     <button class="btn" type="button" id="pasteInGo">Rellenar con estos datos</button>
   </details>
   <form class="grid" id="form" autocomplete="off">
+    <div class="f full" id="tipoBox">
+      <span class="lbl">Tipo</span>
+      <div class="statuspick">
+        <label><input type="radio" name="tipo" value="boda">Boda</label>
+        <label><input type="radio" name="tipo" value="evento">Evento</label>
+      </div>
+    </div>
     <div class="f"><label for="fFecha">Fecha</label><input id="fFecha" type="date" required></div>
     <div class="f"><label for="fNovios" id="lblNovios">Novios</label><input id="fNovios" type="text" placeholder="Laura y Javier" required></div>
     <div class="f"><label for="fHoras">Duración (horas)</label><input id="fHoras" type="number" min="0" step="0.5" inputmode="decimal" placeholder="8"></div>
@@ -495,6 +528,15 @@ form.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;padding:10px 
       <button class="btn primary" id="btnSave" type="button">Guardar boda</button>
     </div>
   </div>
+</dialog>
+
+<dialog id="dlgVer">
+  <div class="dlg-head">
+    <div><h2 id="verTitle"></h2><p class="ver-tipo" id="verTipo"></p></div>
+    <button class="x" id="verClose" aria-label="Cerrar">×</button>
+  </div>
+  <div id="verBody"></div>
+  <div class="dlg-foot"><div class="r"><button class="btn" id="verOk" type="button">Cerrar</button><button class="btn primary" id="verEdit" type="button">Editar</button></div></div>
 </dialog>
 
 <dialog id="dlgPaste">
@@ -683,14 +725,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
   function autoEstado(total,pagado){ if(pagado<=0) return 'sin'; if(total>0&&pagado>=total) return 'pagado'; return 'reserva'; }
   function toast(msg,ms){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('show'),ms||2600);}
-  function contactLinks(c,sep='<br>'){
-    if(!c) return '';
-    return c.split(/\s*(?:\/|;|\||,|\sy\s|\so\s)\s*/).filter(Boolean).map(p=>{
-      if(p.includes('@')) return `<a href="mailto:${esc(p)}">${esc(p)}</a>`;
-      if(/\d{6,}/.test(p.replace(/[\s.\-()+]/g,''))) return `<a href="tel:${esc(p.replace(/[^\d+]/g,''))}">${esc(p)}</a>`;
-      return esc(p);
-    }).join(sep);
+  const contactParts=c=>c?c.split(/\s*(?:\/|;|\||,|\sy\s|\so\s)\s*/).filter(Boolean):[];
+  function contactLink(p){
+    if(p.includes('@')) return `<a href="mailto:${esc(p)}">${esc(p)}</a>`;
+    if(/\d{6,}/.test(p.replace(/[\s.\-()+]/g,''))) return `<a href="tel:${esc(p.replace(/[^\d+]/g,''))}">${esc(p)}</a>`;
+    return esc(p);
   }
+  const contactLinks=(c,sep='<br>')=>contactParts(c).map(contactLink).join(sep);
 
   // ---------- festivos (Navarra) ----------
   const REGION='ES-NC'; // Comunidad Foral de Navarra
@@ -904,16 +945,20 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     $('clashWarn').hidden=!others.length;
     if(others.length) $('clashWarn').textContent=`Ojo: ese día ya tienes ${others.map(o=>(o.estado==='personal'?'el evento personal ':'la boda de ')+o.novios).join(', ')}.`;
   }
+  // Boda o evento (comunión, cumpleaños, empresa…); lo guardado sin tipo cuenta como boda
+  const setTipo=v=>document.querySelectorAll('input[name=tipo]').forEach(r=>r.checked=r.value===v);
+  const getTipo=()=>{const r=document.querySelector('input[name=tipo]:checked');return r?r.value:'boda';};
   // En eventos personales: "Título" en vez de "Novios" y sin horas ni importes
   function syncTipo(){
-    const p=getEstado()==='personal';
-    $('lblNovios').textContent=p?'Título':'Novios';
-    $('fNovios').placeholder=p?'Cumpleaños, viaje, médico…':'Laura y Javier';
+    const p=getEstado()==='personal', ev=!p&&getTipo()==='evento';
+    $('tipoBox').hidden=p;
+    $('lblNovios').textContent=p?'Título':(ev?'Cliente / evento':'Novios');
+    $('fNovios').placeholder=p?'Cumpleaños, viaje, médico…':(ev?'Comunión de Iker':'Laura y Javier');
     ['fHoras','fTotal','fPagado'].forEach(id=>$(id).closest('.f').hidden=p);
     $('fPagado').closest('.f').nextElementSibling.hidden=p;
     $('calc').hidden=p;
-    $('btnSave').textContent=p?'Guardar evento':'Guardar boda';
-    $('dlgTitle').textContent=p?(editId?'Editar evento personal':'Nuevo evento personal'):(editId?'Editar boda':'Nueva boda');
+    $('btnSave').textContent=p||ev?'Guardar evento':'Guardar boda';
+    $('dlgTitle').textContent=p?(editId?'Editar evento personal':'Nuevo evento personal'):ev?(editId?'Editar evento':'Nuevo evento'):(editId?'Editar boda':'Nueva boda');
   }
   function openForm(b,year,fecha){
     editId=b?b.id:null;
@@ -927,7 +972,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     $('fUbic').value=b?.ubicacion||'';
     $('fCont').value=b?.contacto||'';
     $('fNotas').value=b?.notas||'';
-    setEstado(b?.estado||'sin'); syncTipo(); renderQuick();
+    setTipo(b?.tipo||'boda'); setEstado(b?.estado||'sin'); syncTipo(); renderQuick();
     $('btnDel').hidden=!b;
     $('pasteIn').hidden=!!b; $('pasteIn').open=false; $('pasteInTxt').value=''; // solo al añadir
     updateCalc(); $('dlg').showModal(); (fecha?$('fNovios'):$('fFecha')).focus();
@@ -935,14 +980,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   const closeForm=()=>$('dlg').close();
   function saveForm(){
     const fecha=$('fFecha').value, novios=$('fNovios').value.trim();
-    const p=getEstado()==='personal';
-    if(!fecha){ $('fFecha').focus(); toast(p?'Pon la fecha del evento':'Pon la fecha de la boda'); return; }
-    if(!novios){ $('fNovios').focus(); toast(p?'Escribe un título para el evento':'Escribe el nombre de los novios'); return; }
+    const p=getEstado()==='personal', tipo=getTipo(), ev=p||tipo==='evento';
+    if(!fecha){ $('fFecha').focus(); toast(ev?'Pon la fecha del evento':'Pon la fecha de la boda'); return; }
+    if(!novios){ $('fNovios').focus(); toast(p?'Escribe un título para el evento':ev?'Escribe el nombre del cliente o del evento':'Escribe el nombre de los novios'); return; }
     const hv=$('fHoras').value;
-    const data={fecha,novios,horas:p||hv===''?'':num(hv),total:p?0:num($('fTotal').value),pagado:p?0:num($('fPagado').value),
+    const data={tipo,fecha,novios,horas:p||hv===''?'':num(hv),total:p?0:num($('fTotal').value),pagado:p?0:num($('fPagado').value),
       estado:getEstado(),ubicacion:$('fUbic').value.trim(),contacto:$('fCont').value.trim(),notas:$('fNotas').value.trim()};
-    if(editId){ const i=bodas.findIndex(b=>b.id===editId); bodas[i]={...bodas[i],...data}; toast(p?'Evento actualizado':'Boda actualizada'); }
-    else { editId=uid(); bodas.push({id:editId,...data}); toast(p?'Evento guardado':'Boda guardada'); }
+    if(editId){ const i=bodas.findIndex(b=>b.id===editId); bodas[i]={...bodas[i],...data}; toast(ev?'Evento actualizado':'Boda actualizada'); }
+    else { editId=uid(); bodas.push({id:editId,...data}); toast(ev?'Evento guardado':'Boda guardada'); }
     const id=editId;
     selYear=fecha.slice(0,4); save(); closeForm(); renderAll();
     // quedarse en el mes del evento guardado
@@ -1263,6 +1308,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     if(getEstado()==='reserva'&&!num($('fPagado').value)) $('fPagado').value=senal(num($('fTotal').value));
     syncTipo(); updateCalc();
   }));
+  document.querySelectorAll('input[name=tipo]').forEach(r=>r.addEventListener('change',syncTipo));
   const autoSet=()=>{ if(getEstado()!=='cancelada'&&getEstado()!=='personal'&&$('fPagado').value!=='') setEstado(autoEstado(num($('fTotal').value),num($('fPagado').value))); updateCalc(); };
   $('fPagado').addEventListener('input',autoSet); $('fTotal').addEventListener('input',autoSet);
   $('tabs').addEventListener('click',e=>{
@@ -1525,24 +1571,92 @@ Un saludo!!`
         const evs=(byDate[f]||[]).slice().sort((a,b)=>(rank[a.estado]??3)-(rank[b.estado]??3)), act=evs.filter(ocupa);
         const sab=parseDate(f).getDay()===6, libre=sab&&!act.length, h=sab&&hol[f];
         if(sab){ if(act.length) ocupados++; else { libres++; if(f>=hoy) porDelante++; } }
-        const lineas=[...(libre?[null]:[]),...evs]; // null = "Libre"
+        // varios eventos el mismo día: una sola línea ("2 bodas" / "2 eventos") que abre la lista del día
+        const lineas=[...(libre?[null]:[]),...(evs.length>1?[evs]:evs)]; // null = "Libre"
         const cls=act.length?'s-'+act[0].estado:(libre?'libre':'s-cancelada');
-        const title=[cap(corto(f)),...lineas.map(b=>b?`${b.novios} (${ESTADOS[b.estado]})`:'Libre'),h?'Festivo: '+festText(h):''].filter(Boolean).join(' · ');
-        return `<div class="tg ${cls}${lineas.length>1?' multi':''}${f<hoy?' past':''}${f===prox&&libre?' today':''}" data-f="${f}" title="${esc(title)}"><b>${wd(f)} ${+f.slice(8)}</b>${lineas.map(b=>b
-          ?`<button type="button" class="tl ev-${b.estado}" data-id="${b.id}">${b.estado==='personal'?'Personal':b.estado==='cancelada'?'Cancelado':'Evento'}</button>`
-          :`<button type="button" class="tl libre" data-f="${f}">Libre</button>`).join('')}${h?'<em class="fx">F</em>':''}</div>`;
-      }).join('');
-      html+=`<div class="srow"><span class="m">${MESES[m].slice(0,3)}</span><div class="tags">${tags}</div></div>`;
+        const title=[cap(corto(f)),...(libre?['Libre']:[]),...evs.map(b=>`${b.novios} (${ESTADOS[b.estado]})`),h?'Festivo: '+festText(h):''].filter(Boolean).join(' · ');
+        const linea=b=>!b?`<button type="button" class="tl libre" data-f="${f}">Libre</button>`
+          :Array.isArray(b)?`<button type="button" class="tl ev-${b[0].estado}" data-dia="${f}">${b.length} ${b.every(x=>x.estado!=='personal'&&x.tipo!=='evento')?'bodas':'eventos'}</button>`
+          :`<button type="button" class="tl ev-${b.estado}" data-id="${b.id}">${verTipoTxt(b,true)}</button>`;
+        return {f,ev:evs.length>0,html:`<div class="tg ${cls}${lineas.length>1?' multi':''}${f<hoy?' past':''}${f===prox&&libre?' today':''}" data-f="${f}" title="${esc(title)}"><b>${wd(f)} ${+f.slice(8)}</b>${lineas.map(linea).join('')}${h?'<em class="fx">F</em>':''}</div>`};
+      });
+      // días con eventos en la misma semana (de lunes a domingo): van juntos dentro de un marco
+      const lunes=f=>addDays(f,-((parseDate(f).getDay()+6)%7));
+      let fila='';
+      for(let i=0;i<tags.length;){
+        let j=i; while(j<tags.length&&lunes(tags[j].f)===lunes(tags[i].f)) j++;
+        const sem=tags.slice(i,j);
+        fila+=sem.filter(t=>t.ev).length>1?`<div class="sem" style="--n:${sem.length}">${sem.map(t=>t.html).join('')}</div>`:sem.map(t=>t.html).join('');
+        i=j;
+      }
+      html+=`<div class="srow"><span class="m">${MESES[m].slice(0,3)}</span><div class="tags">${fila}</div></div>`;
     }
     $('seasonGrid').innerHTML=html;
     $('seasonSum').textContent=`${ocupados} ${ocupados===1?'sábado ocupado':'sábados ocupados'} · ${libres} libres${porDelante&&porDelante!==libres?` (${porDelante} por delante)`:''}`;
   }
-  // al pulsar una etiqueta: su ficha, o una ficha nueva en ese sábado para apuntar la reserva
+  // texto del tipo: en la etiqueta "Personal"/"Cancelado"; en la ficha, el título de los personales
+  function verTipoTxt(b,enEtiqueta){
+    if(b.estado==='personal') return enEtiqueta?'Personal':(b.novios||'Personal');
+    if(enEtiqueta&&b.estado==='cancelada') return 'Cancelado';
+    return b.tipo==='evento'?'Evento':'Boda';
+  }
+  const fechaLarga=f=>cap(parseDate(f).toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long',year:'numeric'}));
+  // ficha de solo lectura de un evento; "Editar" abre el formulario
+  // (el estado no se escribe: la ficha va pintada de su color)
+  let verId=null;
+  function openVer(b){
+    verId=b.id;
+    $('dlgVer').className='v-'+b.estado;
+    $('verTitle').textContent=fechaLarga(b.fecha);
+    $('verTipo').textContent=verTipoTxt(b);
+    $('verBody').innerHTML=`<dl class="ver">${verFilas(b)}</dl>`;
+    $('verEdit').hidden=false;
+    $('dlgVer').showModal();
+  }
+  // varios eventos el mismo día: un desplegable por evento, cada uno de su color y con su "Editar"
+  function openVerDia(f){
+    const rank={pagado:0,reserva:1,sin:2,personal:3,cancelada:5};
+    const evs=bodas.filter(b=>b.fecha===f).sort((a,b)=>(rank[a.estado]??3)-(rank[b.estado]??3));
+    verId=null;
+    $('dlgVer').className='';
+    $('verTitle').textContent=fechaLarga(f);
+    $('verTipo').textContent=`${evs.length} ${evs.every(x=>x.estado!=='personal'&&x.tipo!=='evento')?'bodas':'eventos'}`;
+    $('verBody').innerHTML='<div class="ver-dia">'+evs.map(b=>`<details class="ver-ev v-${b.estado}"><summary><b>${esc(verTipoTxt(b))}</b>${b.estado==='personal'?'':`<span>${esc(b.novios||'Sin nombre')}</span>`}</summary>
+      <dl class="ver">${verFilas(b,true)}</dl><div class="ver-ev-pie"><button type="button" class="btn" data-edit="${b.id}">Editar</button></div></details>`).join('')+'</div>';
+    $('verEdit').hidden=true;
+    $('dlgVer').showModal();
+  }
+  // sinNombre: en el desplegable el nombre ya va en su cabecera
+  function verFilas(b,sinNombre){
+    const p=b.estado==='personal', total=num(b.total);
+    const filas=[
+      !p&&!sinNombre&&[b.tipo==='evento'?'Cliente / evento':'Novios',b.novios||'Sin nombre'],
+      !p&&b.horas!==''&&['Duración',fmtH(b.horas)],
+      !p&&total&&['Importe',money(total)],
+      b.ubicacion&&['Ubicación',b.ubicacion],
+      // cada contacto se copia al pulsarlo
+      b.contacto&&['Contacto',contactParts(b.contacto).map(c=>`<span class="ver-c" data-copy="${esc(c)}">${esc(c)}</span>`).join(''),true],
+      b.notas&&['Observaciones',b.notas]
+    ].filter(Boolean);
+    return filas.map(([k,v,html])=>`<dt>${k}</dt><dd>${html?v:esc(v)}</dd>`).join('');
+  }
+  $('verClose').onclick=$('verOk').onclick=()=>$('dlgVer').close();
+  $('verBody').addEventListener('click',async e=>{
+    const ed=e.target.closest('[data-edit]');
+    if(ed){ const b=bodas.find(x=>x.id===ed.dataset.edit); $('dlgVer').close(); if(b) openForm(b); return; }
+    const c=e.target.closest('[data-copy]'); if(!c) return;
+    try{ await navigator.clipboard.writeText(c.dataset.copy); toast('Copiado'); }
+    catch(err){ window.prompt('Copia el contacto:',c.dataset.copy); }
+  });
+  $('verEdit').onclick=()=>{ const b=bodas.find(x=>x.id===verId); $('dlgVer').close(); if(b) openForm(b); };
+
+  // al pulsar una etiqueta: la ficha del evento, o una ficha nueva si el sábado está libre
   // (cada línea de la etiqueta abre lo suyo; pulsar fuera de las líneas abre la primera)
   $('seasonGrid').addEventListener('click',e=>{
     const t=e.target.closest('.tg'); if(!t) return;
     const l=e.target.closest('.tl')||t.querySelector('.tl'); if(!l) return;
-    if(l.dataset.id){ const b=bodas.find(x=>x.id===l.dataset.id); if(b) openForm(b); }
+    if(l.dataset.id){ const b=bodas.find(x=>x.id===l.dataset.id); if(b) openVer(b); }
+    else if(l.dataset.dia) openVerDia(l.dataset.dia);
     else openForm(null,null,l.dataset.f);
   });
   $('seasonPrev').onclick=()=>{ seasonYear=String(+(seasonYear||selYear||new Date().getFullYear())-1); renderSeason(); };
