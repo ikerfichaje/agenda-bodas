@@ -456,6 +456,14 @@ form.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;padding:10px 
   <!-- COBROS -->
   <section class="sec" id="sec-cobros" hidden>
     <div class="card">
+      <div class="season-head">
+        <h2>Cobros <span id="cobrosYear"></span></h2>
+        <div class="season-nav">
+          <button class="btn" type="button" id="cobrosPrev" aria-label="Año anterior">‹</button>
+          <button class="btn" type="button" id="cobrosNext" aria-label="Año siguiente">›</button>
+        </div>
+      </div>
+      <p class="season-sum" id="cobrosOtros"></p>
       <div class="cobros-sum" id="cobrosSum"></div>
       <div id="cobrosList"></div>
     </div>
@@ -1684,15 +1692,25 @@ Un saludo!!`
   $('seasonNext').onclick=()=>{ seasonYear=String(+(seasonYear||selYear||new Date().getFullYear())+1); renderSeason(); };
 
   // --- Cobros ---
+  // un año cada vez, como la Temporada; se avisa si queda algo pendiente en otros años
+  let cobrosYear=null;
   function renderCobros(){
-    const hoy=todayStr();
-    const pend=bodas.filter(b=>isBoda(b)&&num(b.total)>num(b.pagado)).sort((a,b)=>a.fecha.localeCompare(b.fecha));
+    const hoy=todayStr(), y=cobrosYear||String(new Date().getFullYear());
+    $('cobrosYear').textContent=y;
+    const todas=bodas.filter(isBoda), delAno=todas.filter(b=>b.fecha.startsWith(y));
+    const pendAll=todas.filter(b=>num(b.total)>num(b.pagado));
+    const pend=pendAll.filter(b=>b.fecha.startsWith(y)).sort((a,b)=>a.fecha.localeCompare(b.fecha));
     const pasadas=pend.filter(b=>b.fecha<hoy), futuras=pend.filter(b=>b.fecha>=hoy);
     const sum=l=>l.reduce((a,b)=>a+num(b.total)-num(b.pagado),0), sinSenal=futuras.filter(b=>num(b.pagado)<=0).length;
+    const total=delAno.reduce((a,b)=>a+num(b.total),0), cobrado=delAno.reduce((a,b)=>a+Math.min(num(b.pagado),num(b.total)),0);
     $('cobrosSum').innerHTML=`
-      <div><b>${money(sum(futuras))}</b><span>por cobrar en ${futuras.length} ${futuras.length===1?'boda próxima':'bodas próximas'}</span></div>
-      <div><b>${money(sum(pasadas))}</b><span>pendiente de ${pasadas.length} ${pasadas.length===1?'boda ya celebrada':'bodas ya celebradas'}</span></div>
+      <div><b>${money(total)}</b><span>en ${delAno.length} ${delAno.length===1?'boda':'bodas'} de ${y}</span></div>
+      <div><b>${money(cobrado)}</b><span>cobrado</span></div>
+      <div><b>${money(sum(pend))}</b><span>pendiente${pasadas.length?` (${money(sum(pasadas))} de ${pasadas.length===1?'una ya celebrada':pasadas.length+' ya celebradas'})`:''}</span></div>
       <div><b>${sinSenal}</b><span>${sinSenal===1?'boda próxima sin señal':'bodas próximas sin señal'}</span></div>`;
+    const otros={}; pendAll.forEach(b=>{ const a=b.fecha.slice(0,4); if(a!==y) otros[a]=(otros[a]||0)+num(b.total)-num(b.pagado); });
+    const ks=Object.keys(otros).sort();
+    $('cobrosOtros').textContent=ks.length?'También pendiente: '+ks.map(a=>`${a} (${money(otros[a])})`).join(', '):'';
     const row=b=>`<div class="crow ev-${b.estado}" data-id="${b.id}">
       <div class="d">${cap(corto(b.fecha))}<small>${b.fecha.slice(0,4)}</small></div>
       <div class="n" data-open>${esc(b.novios)}<small>${ESTADOS[b.estado]} · cobrado ${money(num(b.pagado))} de ${money(num(b.total))}</small></div>
@@ -1701,8 +1719,10 @@ Un saludo!!`
     </div>`;
     $('cobrosList').innerHTML=(pasadas.length?`<h3 class="cobros-h">Ya celebradas: falta cobrar</h3>${pasadas.map(row).join('')}`:'')
       +(futuras.length?`<h3 class="cobros-h">Próximas</h3>${futuras.map(row).join('')}`:'')
-      +(pend.length?'':'<p class="cobros-empty">No hay nada pendiente de cobro.</p>');
+      +(pend.length?'':`<p class="cobros-empty">No hay nada pendiente de cobro en ${y}.</p>`);
   }
+  $('cobrosPrev').onclick=()=>{ cobrosYear=String(+(cobrosYear||new Date().getFullYear())-1); renderCobros(); };
+  $('cobrosNext').onclick=()=>{ cobrosYear=String(+(cobrosYear||new Date().getFullYear())+1); renderCobros(); };
   $('cobrosList').addEventListener('click',e=>{
     const r=e.target.closest('.crow'); if(!r) return;
     const b=bodas.find(x=>x.id===r.dataset.id); if(!b) return;
