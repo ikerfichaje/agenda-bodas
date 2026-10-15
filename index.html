@@ -241,6 +241,25 @@ td a:hover{text-decoration:underline}
 .crow .a{display:flex;gap:6px}
 .crow .a .btn{padding:6px 11px;font-size:.8rem}
 .cobros-empty{color:var(--muted);text-align:center;padding:24px 10px}
+/* Pagos (desplegable dentro de Cobros) */
+.pagos-tog{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:11px 15px;cursor:pointer;text-align:left;color:var(--ink);margin-bottom:16px}
+.pagos-tog:hover{border-color:var(--ink)}
+.pagos-tog .pt-t{font-weight:800;font-size:1rem}
+.pagos-tog .pt-t small{display:block;color:var(--muted);font-weight:600;font-size:.83rem}
+.pagos-tog svg{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;transition:transform .15s}
+.pagos-tog[aria-expanded="true"]{margin-bottom:10px}
+.pagos-tog[aria-expanded="true"] svg{transform:rotate(180deg)}
+.pagos[hidden]{display:none}
+.pagos{border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:6px}
+.pagos .season-sum:empty{display:none}
+#pagosSum{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:700px){ #pagosSum div{padding:10px} #pagosSum b{font-size:1.05rem} }
+.prow{display:grid;grid-template-columns:140px minmax(0,1fr) 110px auto auto;gap:8px;align-items:center;border-style:solid;border-width:1px 1px 1px 4px;border-radius:10px;padding:8px 10px;margin-bottom:6px}
+.prow input{min-width:0;width:100%;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 9px;font-size:.88rem;font-weight:600;color:var(--ink)}
+.prow input[data-k="importe"]{text-align:right}
+.prow .btn{padding:6px 11px;font-size:.8rem;white-space:nowrap}
+.prow .p-x{width:32px;padding:6px 0;font-size:1rem;line-height:1}
+.pagos-empty{color:var(--muted);text-align:center;padding:14px 10px;margin:0}
 
 /* Acciones rápidas de contacto en el formulario */
 .quick{flex-direction:row;flex-wrap:wrap;gap:8px}
@@ -266,6 +285,9 @@ td a:hover{text-decoration:underline}
   .tg.multi .tl{padding-left:3px;border-left-width:2px}
   .crow{grid-template-columns:62px 1fr auto}
   .crow .a{grid-column:1/-1;justify-content:flex-end}
+  .prow{grid-template-columns:minmax(0,1fr) 96px;grid-template-areas:"c c" "f i" "e x"}
+  .prow [data-k="concepto"]{grid-area:c} .prow [data-k="fecha"]{grid-area:f} .prow [data-k="importe"]{grid-area:i}
+  .prow [data-act="estado"]{grid-area:e;justify-self:start} .prow .p-x{grid-area:x;justify-self:end}
 }
 
 /* Selector de vista */
@@ -477,6 +499,17 @@ form.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;padding:10px 
       </div>
       <p class="season-sum" id="cobrosOtros"></p>
       <div class="cobros-sum" id="cobrosSum"></div>
+      <!-- Pagos: lo que pagas tú (gastos, proveedores…), pagado o por pagar -->
+      <button class="pagos-tog" id="pagosTog" type="button" aria-expanded="false" aria-controls="pagosPanel">
+        <span class="pt-t">Pagos<small id="pagosTogSum"></small></span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="pagos" id="pagosPanel" hidden>
+        <div class="cobros-sum" id="pagosSum"></div>
+        <p class="season-sum" id="pagosOtros"></p>
+        <div id="pagosList"></div>
+        <button class="btn" type="button" id="pagosAdd">+ Añadir pago</button>
+      </div>
       <div id="cobrosList"></div>
     </div>
   </section>
@@ -1315,7 +1348,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click();
     setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);
   }
-  function backup(){ download(`bodas-copia-${todayStr()}.json`,JSON.stringify({version:3,moneda:currency,anios:extraYears,festivosExcel:festExcel,festivosLocales:festLocal,bodas},null,2),'application/json'); toast('Copia descargada'); }
+  function backup(){ download(`bodas-copia-${todayStr()}.json`,JSON.stringify({version:3,moneda:currency,anios:extraYears,festivosExcel:festExcel,festivosLocales:festLocal,bodas,pagos},null,2),'application/json'); toast('Copia descargada'); }
   function restore(text){
     try{
       const d=JSON.parse(text), arr=Array.isArray(d)?d:d.bodas;
@@ -1326,6 +1359,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       if(d.moneda) localStorage.setItem(KEY_CUR,d.moneda);
       if(d.festivosExcel&&typeof d.festivosExcel==='object') localStorage.setItem(KEY_FE,JSON.stringify(d.festivosExcel));
       if(Array.isArray(d.festivosLocales)) localStorage.setItem(KEY_LOC,JSON.stringify(d.festivosLocales));
+      if(Array.isArray(d.pagos)){ localStorage.setItem(KEY_PAG,JSON.stringify(d.pagos)); pagos=loadPagos(); } // copias antiguas sin pagos: se dejan los actuales
       load(); $('currency').value=currency; selYear=null; save(); renderAll(); toast('Copia restaurada');
     }catch(e){ toast('Ese archivo no es una copia válida'); }
   }
@@ -1736,7 +1770,72 @@ Un saludo!!`
     $('cobrosList').innerHTML=(pasadas.length?`<h3 class="cobros-h">Ya celebradas: falta cobrar</h3>${pasadas.map(row).join('')}`:'')
       +(futuras.length?`<h3 class="cobros-h">Próximas</h3>${futuras.map(row).join('')}`:'')
       +(pend.length?'':`<p class="cobros-empty">No hay nada pendiente de cobro en ${y}.</p>`);
+    renderPagos();
   }
+
+  // --- Pagos: lo que pagas tú. Se guardan aparte de las bodas (agenda-bodas-pagos) para no tocarlas nunca ---
+  const KEY_PAG='agenda-bodas-pagos', KEY_PAG_OPEN='agenda-bodas-pagos-abierto';
+  function loadPagos(){ try{ const l=JSON.parse(localStorage.getItem(KEY_PAG)||'[]'); return Array.isArray(l)?l.filter(p=>p&&p.id&&p.fecha):[]; }catch(e){ return []; } }
+  function savePagos(){ try{ localStorage.setItem(KEY_PAG,JSON.stringify(pagos)); }catch(e){ toast('No se pudo guardar en el navegador. Haz una copia de seguridad.'); } }
+  let pagos=loadPagos();
+  const pagosY=()=>cobrosYear||String(new Date().getFullYear());
+  function renderPagosSum(){
+    const y=pagosY(), del=pagos.filter(p=>p.fecha.startsWith(y));
+    const hecho=del.filter(p=>p.pagado).reduce((a,p)=>a+num(p.importe),0), debe=del.filter(p=>!p.pagado).reduce((a,p)=>a+num(p.importe),0);
+    const nDebe=del.filter(p=>!p.pagado).length;
+    $('pagosTogSum').textContent=del.length?`${money(hecho)} pagado · ${money(debe)} por pagar en ${y}`:`Ningún pago apuntado en ${y}`;
+    $('pagosSum').innerHTML=`
+      <div><b>${money(hecho)}</b><span>pagado en ${y}</span></div>
+      <div><b>${money(debe)}</b><span>por pagar${nDebe?` (${nDebe} ${nDebe===1?'pago':'pagos'})`:''}</span></div>
+      <div><b>${money(hecho+debe)}</b><span>total de pagos</span></div>`;
+    const otros={}; pagos.forEach(p=>{ const a=p.fecha.slice(0,4); if(a!==y&&!p.pagado&&num(p.importe)) otros[a]=(otros[a]||0)+num(p.importe); });
+    const ks=Object.keys(otros).sort();
+    $('pagosOtros').textContent=ks.length?'También por pagar: '+ks.map(a=>`${a} (${money(otros[a])})`).join(', '):'';
+  }
+  function renderPagos(){
+    const y=pagosY(), del=pagos.filter(p=>p.fecha.startsWith(y)).sort((a,b)=>a.fecha.localeCompare(b.fecha));
+    renderPagosSum();
+    $('pagosList').innerHTML=del.length?del.map(p=>`<div class="prow ev-${p.pagado?'pagado':'sin'}" data-id="${esc(p.id)}">
+      <input type="date" data-k="fecha" value="${esc(p.fecha)}" aria-label="Fecha del pago">
+      <input type="text" data-k="concepto" value="${esc(p.concepto||'')}" placeholder="Concepto (proveedor, gasto…)" aria-label="Concepto">
+      <input type="text" data-k="importe" inputmode="decimal" value="${num(p.importe)?fmtNum(num(p.importe)):''}" placeholder="0" aria-label="Cantidad">
+      <button class="btn${p.pagado?' primary':''}" type="button" data-act="estado" title="Cambiar entre pagado y pendiente">${p.pagado?'✓ Pagado':'Pendiente'}</button>
+      <button class="btn p-x" type="button" data-act="borrar" aria-label="Eliminar este pago" title="Eliminar este pago">×</button>
+    </div>`).join(''):`<p class="pagos-empty">No hay pagos apuntados en ${y}.</p>`;
+  }
+  function abrirPagos(on){
+    $('pagosPanel').hidden=!on; $('pagosTog').setAttribute('aria-expanded',on?'true':'false');
+    try{ localStorage.setItem(KEY_PAG_OPEN,on?'1':'0'); }catch(e){}
+  }
+  try{ abrirPagos(localStorage.getItem(KEY_PAG_OPEN)==='1'); }catch(e){ abrirPagos(false); }
+  $('pagosTog').onclick=()=>abrirPagos($('pagosPanel').hidden);
+  $('pagosAdd').onclick=()=>{
+    const y=pagosY(), hoy=todayStr();
+    const p={id:'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),fecha:hoy.startsWith(y)?hoy:y+'-01-01',concepto:'',importe:0,pagado:false};
+    pagos.push(p); savePagos(); renderPagos();
+    const r=[...$('pagosList').querySelectorAll('.prow')].find(x=>x.dataset.id===p.id);
+    if(r){ r.scrollIntoView({block:'nearest'}); r.querySelector('[data-k="concepto"]').focus(); }
+  };
+  // se guarda mientras escribes, sin repintar la lista (para no perder el cursor)
+  $('pagosList').addEventListener('input',e=>{
+    const k=e.target.dataset.k, r=e.target.closest('.prow'); if(!k||!r) return;
+    const p=pagos.find(x=>x.id===r.dataset.id); if(!p) return;
+    if(k==='fecha'){ if(!/^\d{4}-\d{2}-\d{2}$/.test(e.target.value)) return; p.fecha=e.target.value; }
+    else if(k==='importe') p.importe=num(e.target.value);
+    else p.concepto=e.target.value;
+    savePagos(); renderPagosSum();
+  });
+  $('pagosList').addEventListener('click',e=>{
+    const a=e.target.closest('[data-act]'), r=e.target.closest('.prow'); if(!a||!r) return;
+    const i=pagos.findIndex(x=>x.id===r.dataset.id); if(i<0) return;
+    const p=pagos[i];
+    if(a.dataset.act==='estado'){ p.pagado=!p.pagado; toast(p.pagado?'Pago marcado como pagado':'Pago marcado como pendiente'); }
+    else{
+      if(!confirm(`¿Eliminar el pago "${p.concepto||'sin concepto'}"${num(p.importe)?` de ${money(num(p.importe))}`:''}?`)) return;
+      pagos.splice(i,1); toast('Pago eliminado');
+    }
+    savePagos(); renderPagos();
+  });
   $('cobrosPrev').onclick=()=>{ cobrosYear=String(+(cobrosYear||new Date().getFullYear())-1); renderCobros(); };
   $('cobrosNext').onclick=()=>{ cobrosYear=String(+(cobrosYear||new Date().getFullYear())+1); renderCobros(); };
   $('cobrosList').addEventListener('click',e=>{
