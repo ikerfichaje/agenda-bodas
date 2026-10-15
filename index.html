@@ -195,9 +195,12 @@ td a:hover{text-decoration:underline}
 /* semana con varios eventos: sus etiquetas van juntas dentro de un marco oscuro */
 .sem{display:flex;gap:3px;padding:3px;border:2px solid var(--ink);border-radius:11px;background:var(--line);flex:0 0 calc(var(--n)*var(--tgw) + (var(--n) - 1)*var(--gap));min-width:calc(var(--n)*var(--tgmin) + (var(--n) - 1)*var(--gap))}
 .sem .tg{flex:1 1 0;min-width:0}
-/* días de la misma semana sin marco: línea fina discontinua negra arriba y abajo */
-.semg{display:flex;gap:var(--gap);padding:3px 0;border-top:1px dashed var(--ink);border-bottom:1px dashed var(--ink);flex:0 0 calc(var(--n)*var(--tgw) + (var(--n) - 1)*var(--gap));min-width:calc(var(--n)*var(--tgmin) + (var(--n) - 1)*var(--gap))}
-.semg .tg{flex:1 1 0;min-width:0}
+/* evento fuera del sábado + sábado libre: los dos días reducidos en el hueco de una etiqueta,
+   en dos columnas, solo con "vie / 9" y "sáb / 10" y su color; línea discontinua arriba y abajo */
+.semg{display:flex;align-items:stretch;gap:3px;padding:2px 0;border-top:1px dashed var(--ink);border-bottom:1px dashed var(--ink);flex:0 0 var(--tgw);min-width:var(--tgmin);min-height:40px}
+.semg .tg{flex:1 1 0;min-width:0;min-height:0;display:flex;align-items:center;justify-content:center;padding:2px;border-radius:6px;text-align:center}
+.semg .tg .tl,.semg .tg .fx{display:none}
+.semg .tg b{font-size:.7rem;line-height:1.2;white-space:normal;width:min-content;text-align:center}
 .sem-x{flex:0 0 18px;border:0;background:none;padding:0;cursor:pointer;font-size:1.1rem;font-weight:800;color:var(--ink)}
 /* semana plegada: ocupa lo que una etiqueta, con un día de su color por cada evento */
 .semc{flex:0 0 var(--tgw);min-width:var(--tgmin);min-height:40px;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:3px;border:2px solid var(--ink);border-radius:9px;background:var(--line);cursor:pointer;text-align:left}
