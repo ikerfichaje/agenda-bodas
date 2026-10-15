@@ -195,6 +195,9 @@ td a:hover{text-decoration:underline}
 /* semana con varios eventos: sus etiquetas van juntas dentro de un marco oscuro */
 .sem{display:flex;gap:3px;padding:3px;border:2px solid var(--ink);border-radius:11px;background:var(--line);flex:0 0 calc(var(--n)*var(--tgw) + (var(--n) - 1)*var(--gap));min-width:calc(var(--n)*var(--tgmin) + (var(--n) - 1)*var(--gap))}
 .sem .tg{flex:1 1 0;min-width:0}
+/* días de la misma semana sin marco: línea fina discontinua negra arriba y abajo */
+.semg{display:flex;gap:var(--gap);padding:3px 0;border-top:1px dashed var(--ink);border-bottom:1px dashed var(--ink);flex:0 0 calc(var(--n)*var(--tgw) + (var(--n) - 1)*var(--gap));min-width:calc(var(--n)*var(--tgmin) + (var(--n) - 1)*var(--gap))}
+.semg .tg{flex:1 1 0;min-width:0}
 .sem-x{flex:0 0 18px;border:0;background:none;padding:0;cursor:pointer;font-size:1.1rem;font-weight:800;color:var(--ink)}
 /* semana plegada: ocupa lo que una etiqueta, con un día de su color por cada evento */
 .semc{flex:0 0 var(--tgw);min-width:var(--tgmin);min-height:40px;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:3px;border:2px solid var(--ink);border-radius:9px;background:var(--line);cursor:pointer;text-align:left}
@@ -254,8 +257,12 @@ td a:hover{text-decoration:underline}
 .pagos .season-sum:empty{display:none}
 #pagosSum{grid-template-columns:repeat(3,minmax(0,1fr))}
 @media (max-width:700px){ #pagosSum div{padding:10px} #pagosSum b{font-size:1.05rem} }
-.prow{display:grid;grid-template-columns:140px minmax(0,1fr) 110px auto auto;gap:8px;align-items:center;border-style:solid;border-width:1px 1px 1px 4px;border-radius:10px;padding:8px 10px;margin-bottom:6px}
-.prow input{min-width:0;width:100%;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 9px;font-size:.88rem;font-weight:600;color:var(--ink)}
+.prow{display:grid;grid-template-columns:140px minmax(0,1fr) minmax(0,210px) 110px auto auto;gap:8px;align-items:center;border-style:solid;border-width:1px 1px 1px 4px;border-radius:10px;padding:8px 10px;margin-bottom:6px}
+.prow input,.prow select{min-width:0;width:100%;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 9px;font-size:.88rem;font-weight:600;color:var(--ink)}
+.prow select:invalid,.prow select.vacio{color:var(--muted);font-weight:500}
+.crow [data-deuda]{display:block;overflow:hidden;text-overflow:ellipsis}
+.crow .debe{color:var(--ink)}
+.ver-po{display:block}
 .prow input[data-k="importe"]{text-align:right}
 .prow .btn{padding:6px 11px;font-size:.8rem;white-space:nowrap}
 .prow .p-x{width:32px;padding:6px 0;font-size:1rem;line-height:1}
@@ -285,8 +292,8 @@ td a:hover{text-decoration:underline}
   .tg.multi .tl{padding-left:3px;border-left-width:2px}
   .crow{grid-template-columns:62px 1fr auto}
   .crow .a{grid-column:1/-1;justify-content:flex-end}
-  .prow{grid-template-columns:minmax(0,1fr) 96px;grid-template-areas:"c c" "f i" "e x"}
-  .prow [data-k="concepto"]{grid-area:c} .prow [data-k="fecha"]{grid-area:f} .prow [data-k="importe"]{grid-area:i}
+  .prow{grid-template-columns:minmax(0,1fr) 96px;grid-template-areas:"c c" "f i" "b b" "e x"}
+  .prow [data-k="concepto"]{grid-area:c} .prow [data-k="fecha"]{grid-area:f} .prow [data-k="importe"]{grid-area:i} .prow [data-k="boda"]{grid-area:b}
   .prow [data-act="estado"]{grid-area:e;justify-self:start} .prow .p-x{grid-area:x;justify-self:end}
 }
 
@@ -1649,7 +1656,7 @@ Un saludo!!`
         const linea=b=>!b?`<button type="button" class="tl libre" data-f="${f}">Libre</button>`
           :Array.isArray(b)?`<button type="button" class="tl ev-${b[0].estado}" data-dia="${f}">${varios(b)}</button>`
           :`<button type="button" class="tl ev-${b.estado}" data-id="${b.id}">${verTipoTxt(b,true)}</button>`;
-        return {f,ev:evs.length>0,cls,tipo:evs.length>1?varios(evs):evs.length?verTipoTxt(evs[0],true):'',html:`<div class="tg ${cls}${lineas.length>1?' multi':''}${f<hoy?' past':''}${f===prox&&libre?' today':''}" data-f="${f}" title="${esc(title)}"><b>${wd(f)} ${+f.slice(8)}</b>${lineas.map(linea).join('')}${h?'<em class="fx">F</em>':''}</div>`};
+        return {f,ev:evs.length>0,sab,libre,cls,tipo:evs.length>1?varios(evs):evs.length?verTipoTxt(evs[0],true):'',html:`<div class="tg ${cls}${lineas.length>1?' multi':''}${f<hoy?' past':''}${f===prox&&libre?' today':''}" data-f="${f}" title="${esc(title)}"><b>${wd(f)} ${+f.slice(8)}</b>${lineas.map(linea).join('')}${h?'<em class="fx">F</em>':''}</div>`};
       });
       // días con eventos en la misma semana (de lunes a domingo): plegados en una etiqueta pequeña
       // con un punto de color por día; al pulsarla se despliegan dentro de un marco
@@ -1658,7 +1665,11 @@ Un saludo!!`
       for(let i=0;i<tags.length;){
         let j=i; while(j<tags.length&&lunes(tags[j].f)===lunes(tags[i].f)) j++;
         const sem=tags.slice(i,j), conEv=sem.filter(t=>t.ev), k=mk+'/'+lunes(sem[0].f);
-        if(conEv.length<2) fila+=sem.map(t=>t.html).join('');
+        // evento (también cancelado) en un día que no es sábado y el sábado de esa semana libre:
+        // se unen con una línea discontinua arriba y abajo
+        const fueraSab=conEv.length===1&&sem.some(t=>t.sab&&t.libre&&!t.ev)&&sem.some(t=>!t.sab&&t.ev);
+        if(fueraSab) fila+=`<div class="semg" style="--n:${sem.length}">${sem.map(t=>t.html).join('')}</div>`;
+        else if(conEv.length<2) fila+=sem.map(t=>t.html).join('');
         else if(semAbiertas.has(k)) fila+=`<div class="sem" style="--n:${sem.length}"><button type="button" class="sem-x" data-sem="${k}" aria-label="Plegar la semana">‹</button>${sem.map(t=>t.html).join('')}</div>`;
         else fila+=`<button type="button" class="semc${sem.every(t=>t.f<hoy)?' past':''}" data-sem="${k}" title="Ver los días de esta semana">${conEv.map(t=>`<span class="mini ${t.cls}"><b>${wd(t.f)} ${+t.f.slice(8)}</b><i>${t.tipo}</i></span>`).join('')}</button>`;
         i=j;
@@ -1707,6 +1718,7 @@ Un saludo!!`
       !p&&!sinNombre&&[b.tipo==='evento'?'Cliente / evento':'Novios',b.novios||'Sin nombre'],
       !p&&b.horas!==''&&['Duración',fmtH(b.horas)],
       !p&&total&&['Importe',money(total)],
+      !p&&paraOtrosFila(b),
       b.ubicacion&&['Ubicación',b.ubicacion],
       // cada contacto se copia al pulsarlo
       b.contacto&&['Contacto',contactParts(b.contacto).map(c=>`<span class="ver-c" data-copy="${esc(c)}">${esc(c)}</span>`).join(''),true],
@@ -1763,7 +1775,7 @@ Un saludo!!`
     $('cobrosOtros').textContent=ks.length?'También pendiente: '+ks.map(a=>`${a} (${money(otros[a])})`).join(', '):'';
     const row=b=>`<div class="crow ev-${b.estado}" data-id="${b.id}">
       <div class="d">${cap(corto(b.fecha))}<small>${b.fecha.slice(0,4)}</small></div>
-      <div class="n" data-open>${esc(b.novios)}<small>${ESTADOS[b.estado]} · cobrado ${money(num(b.pagado))} de ${money(num(b.total))}</small></div>
+      <div class="n" data-open>${esc(b.novios)}<small>${ESTADOS[b.estado]} · cobrado ${money(num(b.pagado))} de ${money(num(b.total))}<span data-deuda>${deudaTxt(b.id)}</span></small></div>
       <div class="p">${money(num(b.total)-num(b.pagado))}<small>pendiente</small></div>
       <div class="a">${num(b.pagado)<=0?`<button class="btn" type="button" data-act="senal">Señal ${SENAL} €</button>`:''}<button class="btn primary" type="button" data-act="pagada">Cobrada</button></div>
     </div>`;
@@ -1779,6 +1791,31 @@ Un saludo!!`
   function savePagos(){ try{ localStorage.setItem(KEY_PAG,JSON.stringify(pagos)); }catch(e){ toast('No se pudo guardar en el navegador. Haz una copia de seguridad.'); } }
   let pagos=loadPagos();
   const pagosY=()=>cobrosYear||String(new Date().getFullYear());
+  // dinero de una boda que va a otros (p. ej. a quien contrataste para ella), pagado o no:
+  // se queda siempre en la boda para saber lo que no es tuyo
+  const pagosDe=id=>pagos.filter(p=>p.bodaId===id&&num(p.importe));
+  function deudaTxt(id){
+    const l=pagosDe(id); if(!l.length) return '';
+    const t=l.reduce((a,p)=>a+num(p.importe),0), pend=l.filter(p=>!p.pagado).reduce((a,p)=>a+num(p.importe),0);
+    const quien=l.map(p=>(p.concepto||'').trim()).filter(Boolean);
+    return `<b class="debe">Para otros ${money(t)}${quien.length?' ('+esc(quien.join(', '))+')':''}</b> · ${pend?`debes ${money(pend)}`:'pagado'}`;
+  }
+  // fila de la ficha de la boda: cada pago con su estado y lo que te queda a ti
+  function paraOtrosFila(b){
+    const l=pagosDe(b.id); if(!l.length) return null;
+    const t=l.reduce((a,p)=>a+num(p.importe),0), total=num(b.total);
+    return ['Para otros',l.map(p=>`<span class="ver-po">${esc((p.concepto||'').trim()||'Sin concepto')}: ${money(num(p.importe))} · ${p.pagado?'pagado':'por pagar'}</span>`).join('')
+      +(total?`<span class="ver-po"><b>Te quedan ${money(total-t)}</b> de ${money(total)}</span>`:''),true];
+  }
+  function renderCobrosAviso(){ $('cobrosList').querySelectorAll('.crow').forEach(r=>{ const s=r.querySelector('[data-deuda]'); if(s) s.innerHTML=deudaTxt(r.dataset.id); }); }
+  // bodas para el desplegable: las del año que ves en Cobros y los de al lado, más la ya elegida
+  function bodaOpts(p){
+    const y=+pagosY(), ys=[y-1,y,y+1].map(String);
+    const l=bodas.filter(b=>isBoda(b)&&(ys.includes(b.fecha.slice(0,4))||b.id===p.bodaId)).sort((a,b)=>a.fecha.localeCompare(b.fecha));
+    const grupos={}; l.forEach(b=>(grupos[b.fecha.slice(0,4)]=grupos[b.fecha.slice(0,4)]||[]).push(b));
+    return `<option value="">Sin boda relacionada</option>`+Object.keys(grupos).sort().map(a=>`<optgroup label="${a}">${grupos[a].map(b=>
+      `<option value="${esc(b.id)}"${b.id===p.bodaId?' selected':''}>${esc(cap(corto(b.fecha)))} · ${esc(b.novios)}</option>`).join('')}</optgroup>`).join('');
+  }
   function renderPagosSum(){
     const y=pagosY(), del=pagos.filter(p=>p.fecha.startsWith(y));
     const hecho=del.filter(p=>p.pagado).reduce((a,p)=>a+num(p.importe),0), debe=del.filter(p=>!p.pagado).reduce((a,p)=>a+num(p.importe),0);
@@ -1798,6 +1835,7 @@ Un saludo!!`
     $('pagosList').innerHTML=del.length?del.map(p=>`<div class="prow ev-${p.pagado?'pagado':'sin'}" data-id="${esc(p.id)}">
       <input type="date" data-k="fecha" value="${esc(p.fecha)}" aria-label="Fecha del pago">
       <input type="text" data-k="concepto" value="${esc(p.concepto||'')}" placeholder="Concepto (proveedor, gasto…)" aria-label="Concepto">
+      <select data-k="boda" class="${p.bodaId&&bodas.some(b=>b.id===p.bodaId)?'':'vacio'}" aria-label="Boda relacionada" title="Boda de la que sale este pago">${bodaOpts(p)}</select>
       <input type="text" data-k="importe" inputmode="decimal" value="${num(p.importe)?fmtNum(num(p.importe)):''}" placeholder="0" aria-label="Cantidad">
       <button class="btn${p.pagado?' primary':''}" type="button" data-act="estado" title="Cambiar entre pagado y pendiente">${p.pagado?'✓ Pagado':'Pendiente'}</button>
       <button class="btn p-x" type="button" data-act="borrar" aria-label="Eliminar este pago" title="Eliminar este pago">×</button>
@@ -1822,8 +1860,9 @@ Un saludo!!`
     const p=pagos.find(x=>x.id===r.dataset.id); if(!p) return;
     if(k==='fecha'){ if(!/^\d{4}-\d{2}-\d{2}$/.test(e.target.value)) return; p.fecha=e.target.value; }
     else if(k==='importe') p.importe=num(e.target.value);
+    else if(k==='boda'){ if(e.target.value) p.bodaId=e.target.value; else delete p.bodaId; e.target.classList.toggle('vacio',!e.target.value); }
     else p.concepto=e.target.value;
-    savePagos(); renderPagosSum();
+    savePagos(); renderPagosSum(); renderCobrosAviso();
   });
   $('pagosList').addEventListener('click',e=>{
     const a=e.target.closest('[data-act]'), r=e.target.closest('.prow'); if(!a||!r) return;
@@ -1834,7 +1873,7 @@ Un saludo!!`
       if(!confirm(`¿Eliminar el pago "${p.concepto||'sin concepto'}"${num(p.importe)?` de ${money(num(p.importe))}`:''}?`)) return;
       pagos.splice(i,1); toast('Pago eliminado');
     }
-    savePagos(); renderPagos();
+    savePagos(); renderPagos(); renderCobrosAviso();
   });
   $('cobrosPrev').onclick=()=>{ cobrosYear=String(+(cobrosYear||new Date().getFullYear())-1); renderCobros(); };
   $('cobrosNext').onclick=()=>{ cobrosYear=String(+(cobrosYear||new Date().getFullYear())+1); renderCobros(); };
