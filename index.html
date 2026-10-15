@@ -1703,8 +1703,11 @@ Un saludo!!`
     const pasadas=pend.filter(b=>b.fecha<hoy), futuras=pend.filter(b=>b.fecha>=hoy);
     const sum=l=>l.reduce((a,b)=>a+num(b.total)-num(b.pagado),0), sinSenal=futuras.filter(b=>num(b.pagado)<=0).length;
     const total=delAno.reduce((a,b)=>a+num(b.total),0), cobrado=delAno.reduce((a,b)=>a+Math.min(num(b.pagado),num(b.total)),0);
+    // recuento sin eventos personales; los eventos de pago (tipo "evento") se cuentan aparte de las bodas
+    const nEv=delAno.filter(b=>b.tipo==='evento').length, nBod=delAno.length-nEv;
+    const cuenta=[nBod||!nEv?`${nBod} ${nBod===1?'boda':'bodas'}`:'',nEv?`${nEv} ${nEv===1?'evento':'eventos'}`:''].filter(Boolean).join(' y ');
     $('cobrosSum').innerHTML=`
-      <div><b>${money(total)}</b><span>en ${delAno.length} ${delAno.length===1?'boda':'bodas'} de ${y}</span></div>
+      <div><b>${money(total)}</b><span>en ${cuenta} de ${y}</span></div>
       <div><b>${money(cobrado)}</b><span>cobrado</span></div>
       <div><b>${money(sum(pend))}</b><span>pendiente${pasadas.length?` (${money(sum(pasadas))} de ${pasadas.length===1?'una ya celebrada':pasadas.length+' ya celebradas'})`:''}</span></div>
       <div><b>${sinSenal}</b><span>${sinSenal===1?'boda próxima sin señal':'bodas próximas sin señal'}</span></div>`;
