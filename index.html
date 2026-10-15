@@ -405,9 +405,17 @@ form.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;padding:10px 
   body.compacta tr.libre .add-hint{display:none}
   .toolbar .vista{order:-1}
 }
+/* Agenda: botones flotantes "arriba del todo" y "semana actual" */
+.fab{position:fixed;right:16px;z-index:45;width:46px;height:46px;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);background:var(--surface);color:var(--accent);border-radius:999px;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.14);padding:0}
+.fab[hidden]{display:none}
+.fab svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.fab:hover{border-color:var(--accent)}
+.fab-top{top:calc(16px + env(safe-area-inset-top,0px))}
+.fab-hoy{bottom:calc(20px + env(safe-area-inset-bottom,0px))}
+@media (max-width:700px){ .fab-hoy{bottom:calc(86px + env(safe-area-inset-bottom,0px))} }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 @media print{
-  .toolbar,footer.tools,header .btn,.archivador .add,.install{display:none!important}
+  .toolbar,footer.tools,header .btn,.archivador .add,.install,.fab{display:none!important}
   body{background:#fff}
   tr.fila{break-inside:avoid}
 }
@@ -436,6 +444,10 @@ form.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;padding:10px 
     <button class="sbtn" type="button" data-s="agenda"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14M5 12h14M5 18h9"/></svg><span>Agenda</span></button>
     <button class="sbtn" type="button" data-s="cobros"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2.5"/><circle cx="12" cy="12" r="2.6"/><path d="M6.5 9.5v5M17.5 9.5v5"/></svg><span>Cobros</span></button>
   </nav>
+
+  <!-- Agenda: flotantes para volver arriba o a la semana actual (se ocultan cuando ya estás ahí) -->
+  <button class="fab fab-top" id="fabTop" type="button" aria-label="Ir arriba del todo" title="Ir arriba del todo" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V6M6 11l6-6 6 6"/></svg></button>
+  <button class="fab fab-hoy" id="fabHoy" type="button" aria-label="Ir a la semana actual" title="Ir a la semana actual" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><circle cx="12" cy="15" r="1.6"/></svg></button>
 
 
   <!-- DISPONIBILIDAD: la temporada de cada año, una etiqueta por evento -->
@@ -1387,6 +1399,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     $('tools').hidden=s!=='agenda'; // importar, copias, festivos, textos…: solo en la Agenda
     $('secnav').querySelectorAll('.sbtn').forEach(b=>{ if(b.dataset.s===s) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current'); });
     try{ localStorage.setItem(KEY_SEC,s); }catch(e){}
+    actualizarFabs();
   }
   $('secnav').addEventListener('click',e=>{
     const b=e.target.closest('.sbtn'); if(!b) return;
@@ -1748,6 +1761,28 @@ Un saludo!!`
     const tr=[...$('months').querySelectorAll('tr.fila')].find(t=>(t.dataset.f||t.dataset.fecha)>=lunes);
     if(tr) tr.scrollIntoView({block:'center'}); else window.scrollTo(0,0);
   }
+
+  // Flotantes de la Agenda: ↑ arriba del todo (oculto si ya estás arriba) y semana actual (oculto si ya estás en ella)
+  // Devuelve el scroll al que lleva irASemanaActual, o null si antes tiene que cambiar de año
+  function posSemanaActual(){
+    const cy=String(new Date().getFullYear());
+    if(selYear!==cy) return years().includes(cy)?null:0;
+    const lunes=addDays(todayStr(),-((new Date().getDay()+6)%7));
+    const tr=[...$('months').querySelectorAll('tr.fila')].find(t=>(t.dataset.f||t.dataset.fecha)>=lunes);
+    if(!tr) return 0;
+    const r=tr.getBoundingClientRect(), max=document.documentElement.scrollHeight-window.innerHeight;
+    return Math.max(0,Math.min(max,r.top+window.scrollY-(window.innerHeight-r.height)/2));
+  }
+  function actualizarFabs(){
+    const enAgenda=!$('sec-agenda').hidden, y=window.scrollY, p=enAgenda?posSemanaActual():0;
+    $('fabTop').hidden=!enAgenda||y<=4;
+    $('fabHoy').hidden=!enAgenda||(p!==null&&Math.abs(y-p)<=4);
+  }
+  $('fabTop').onclick=()=>window.scrollTo(0,0);
+  $('fabHoy').onclick=irASemanaActual;
+  window.addEventListener('scroll',actualizarFabs,{passive:true});
+  window.addEventListener('resize',actualizarFabs);
+  if(window.ResizeObserver) new ResizeObserver(()=>actualizarFabs()).observe(document.body); // cambios de vista, filtros, año…
 
   // ---------- pegar solicitud de presupuesto ----------
   // Lee líneas "Campo: valor" (Nombre, Fecha, Lugar, Email, Teléfono…); lo que no reconoce va a observaciones
